@@ -1,162 +1,222 @@
 import mysql.connector
 
+
 mydb = None
 cursor = None
- 
- 
-# TODO: Doc comment what ever that means, figure it out, the TA wrote it 
- 
-class App: 
- 
-    def __init__(self): 
- 
-        # These could change based on what your database and password for it are 
-        dbPassword = "Queensiscool5" 
-        database = "mydatabase" 
- 
-    # Connect to MySQL 
-        mydb = mysql.connector.connect( 
-            host="localhost", 
-            user="root", 
-            password=dbPassword, 
-        ) 
-        cursor = mydb.cursor() 
- 
-        # Set up a database, delete the old one (testing) 
-        cursor.execute("CREATE DATABASE IF NOT EXISTS " + database) 
-        cursor.execute("USE " + database) 
-        # create Users and Teams table 
-        # create also a junction table to show many to many relationships 
- 
-        createUserTable = """ 
-            CREATE TABLE IF NOT EXISTS user( 
-            userID INT AUTO_INCREMENT PRIMARY KEY, 
-            username VARCHAR(255) NOT NULL, 
-            password VARCHAR(255) NOT NULL 
-            ); 
-            """ 
- 
-        createTeamTable = """ 
-            CREATE TABLE IF NOT EXISTS team( 
-            teamID INT AUTO_INCREMENT PRIMARY KEY, 
-            teamName VARCHAR(255) NOT NULL 
-            ); 
-            """ 
- 
-        #HERE IS THE MEMBERS FOR A TEAM, AND TEAMS THAT A USER HAS 
-        createUserTeamTable = """ 
-            CREATE TABLE IF NOT EXISTS userteam( 
-                userTeamID INT AUTO_INCREMENT PRIMARY KEY, 
-                userID INT, 
-                teamID INT, 
-                FOREIGN KEY (userID) REFERENCES user (userID) ON DELETE CASCADE, 
-                FOREIGN KEY (teamID) REFERENCES team (teamID) ON DELETE CASCADE 
-                ); 
-            """ 
- 
-        #TODO add the required parameters 
-        createProjectTable = """ 
-            CREATE TABLE IF NOT EXISTS project( 
-            projectID INT AUTO_INCREMENT PRIMARY KEY, 
-            projectName VARCHAR(255) NOT NULL, 
-            priority INT, 
-            teamID INT, 
-            FOREIGN KEY (teamID) REFERENCES team (teamID) ON DELETE CASCADE 
-            ); 
-            """ 
- 
-        createTaskTable = """ 
-            CREATE TABLE IF NOT EXISTS task( 
-            taskID INT AUTO_INCREMENT PRIMARY KEY, 
-            comleted VARCHAR(255) NOT NULL, 
-            projectID INT, 
-            userID INT,
-            completed BOOLEAN,
-            FOREIGN KEY (projectID) REFERENCES project (projectID) ON DELETE CASCADE, 
-            FOREIGN KEY (userID) REFERENCES user (userID) ON DELETE CASCADE 
-            ); 
-            """ 
- 
-        cursor.execute(createUserTable) 
-        cursor.execute(createTeamTable) 
-        cursor.execute(createUserTeamTable) 
-        cursor.execute(createProjectTable) 
-        cursor.execute(createTaskTable) 
-        mydb.commit() 
-        # print("----------------------------->Finished initializing \n") 
- 
-    def userExists(self, username, password):
-        # Check if a user with the given username and password exists
-        query = "SELECT * FROM user WHERE username = %s AND password = %s;"
-        data = (username, password)
+# These could change based on what your database and password for it are 
+dbPassword = "1234" 
+database = "mydatabase" 
+
+# Connect to MySQL 
+mydb = mysql.connector.connect( 
+    host="localhost", 
+    user="root", 
+    password=dbPassword, 
+) 
+cursor = mydb.cursor() 
+
+# Set up a database, delete the old one (testing) 
+cursor.execute("CREATE DATABASE IF NOT EXISTS " + database) 
+cursor.execute("USE " + database) 
+# create Users and Teams table 
+# create also a junction table to show many to many relationships 
+
+createUserTable = """ 
+    CREATE TABLE IF NOT EXISTS user( 
+    userID INT AUTO_INCREMENT PRIMARY KEY, 
+    username VARCHAR(255) NOT NULL, 
+    password VARCHAR(255) NOT NULL 
+    ); 
+    """ 
+
+createTeamTable = """ 
+    CREATE TABLE IF NOT EXISTS team( 
+    teamID INT AUTO_INCREMENT PRIMARY KEY, 
+    teamName VARCHAR(255) NOT NULL 
+    ); 
+    """ 
+
+#HERE IS THE MEMBERS FOR A TEAM, AND TEAMS THAT A USER HAS 
+createUserTeamTable = """ 
+    CREATE TABLE IF NOT EXISTS userteam( 
+        userTeamID INT AUTO_INCREMENT PRIMARY KEY, 
+        userID INT, 
+        teamID INT, 
+        FOREIGN KEY (userID) REFERENCES user (userID) ON DELETE CASCADE, 
+        FOREIGN KEY (teamID) REFERENCES team (teamID) ON DELETE CASCADE 
+        ); 
+    """ 
+
+#TODO add the required parameters 
+createProjectTable = """ 
+    CREATE TABLE IF NOT EXISTS project( 
+    projectID INT AUTO_INCREMENT PRIMARY KEY, 
+    projectName VARCHAR(255) NOT NULL, 
+    priority INT, 
+    teamID INT, 
+    FOREIGN KEY (teamID) REFERENCES team (teamID) ON DELETE CASCADE 
+    ); 
+    """ 
+
+createTaskTable = """ 
+    CREATE TABLE IF NOT EXISTS task( 
+    taskID INT AUTO_INCREMENT PRIMARY KEY, 
+    completed VARCHAR(255) NOT NULL, 
+    taskName VARCHAR(255) NOT NULL,
+    projectID INT, 
+    userID INT,
+    completed BOOLEAN,
+    FOREIGN KEY (projectID) REFERENCES project (projectID) ON DELETE CASCADE, 
+    FOREIGN KEY (userID) REFERENCES user (userID) ON DELETE CASCADE 
+    ); 
+    """ 
+
+cursor.execute(createUserTable) 
+cursor.execute(createTeamTable) 
+cursor.execute(createUserTeamTable) 
+cursor.execute(createProjectTable) 
+cursor.execute(createTaskTable) 
+mydb.commit()
+
+# Executes query with data and returns the result as list
+def fetch_query(query: str, data: tuple = ()):
+    # print(query, data)
+    if data:
         cursor.execute(query, data)
-        result = cursor.fetchall()
-        mydb.commit()
+    else:
+        cursor.execute(query)
+    result = cursor.fetchall()
+    assert result != None
+    return result
 
-        if result:
-            return True
-        else:
-            return False
 
-    def register(self):
+# Executes query with data and commits the changes
+def execute_query_and_commit(query: str, data: tuple):
+    # print(query, data)
+    cursor.execute(query, data)
+    mydb.commit()
+    return cursor.lastrowid
+
+
+def userExists(username, password):
+    # Check if a user with the given username and password exists
+    query = "SELECT * FROM user WHERE username = %s AND password = %s;"
+    data = (username, password)
+
+    return bool(fetch_query(query, data))
+
+def get_projectID(project_name):
+    query = "SELECT projectName FROM project WHERE projectName = %s" 
+    data = (project_name, ) 
+    result = fetch_query(query, data)
+    if result:
+        return result[0]
+    else:
+        return None
+
+def get_taskID(task_name, projectID):
+    query = "SELECT taskID FROM task WHERE taskName = %s AND projectID = %s" 
+    data = (task_name, projectID) 
+    result = fetch_query(query, data)
+    if result:
+        return result[0]
+    else:
+        return None
+
+
+class App:
+    def __init__(self):
+        self.current_user: User | None = None
+
+    def register(self, username, password):
         # Register a new user
-        username = input("Enter a username: ")
-        password = input("Enter a password: ")
-        if self.userExists(username, password):
-            print("User already exists")
+        if userExists(username, password):
             return False
         data = (username, password)
         query = "INSERT INTO user (username, password) VALUES (%s, %s);"
-        cursor.execute(query, data)
-        mydb.commit()
-        print("Successful Registration")
+        execute_query_and_commit(query, data)
+        return True
 
-    def login(self):
+    def login(self, username, password):
         # User login
-        username = input("Enter your username: ")
-        password = input("Enter your password: ")
-
-        if self.userExists(username, password):
-            print("Login Successful")
-            data = (self.username,)
-            query = "SELECT userID FROM user WHERE username = %s;"
-            cursor.execute(query, data)
-            userID = cursor.fetchone()
-            return userID
+        data = (username, password)
+        query = "SELECT userID FROM user WHERE username = %s AND password = %s;"
+        result = fetch_query(query, data)
+        if result:
+            self.current_user = User(result[0])
+            return True
         else:
-            print("Login Failed")
             return False
  
+
+def get_teamID(team_name):
+    query = "SELECT teamID FROM team WHERE teamName = %s" 
+    data = (team_name, )
+    result = fetch_query(query, data)
+    if result:
+        return result[0]
+    else:
+        return None
+
  
 class User(App): 
  
     def __init__(self, userID): 
-        self.userID = userID
+        self.current_user_userID = userID
+        self.teamFocus = None
  
     def __str__(self): 
-        return self.userID
- 
-    def createTeam(self, newTeamName): 
+        return self.current_user_userID
+    
+    # Create team, and assign self user to it
+    def createTeam(self, newTeamName):
         query = "INSERT INTO team (teamName) VALUES (%s, %s, %s)"
         data = (newTeamName, )
-        cursor.execute(query, data)
-        mydb.commit()
- 
+        teamID = execute_query_and_commit(query, data)
+        query = "INSERT INTO userteam (userID, teamID) VALUES (%s, %s)"
+        data = (self.current_user_userID, teamID)
+        execute_query_and_commit(query, data)
+        
+    # List teams user is in
     def listTeams(self): 
- 
-        query = "SELECT teamName FROM team" 
-        cursor.execute(query) 
-        teamNames = cursor.fetchall() 
-        mydb.commit() 
- 
-        print("Listing Personal User Teams:\n") 
-        for teamName in teamNames: 
-            print(str(teamName) + "\n") 
-        return str(teamNames) 
- 
- 
-    def assignUserToTeam(self, user, team): 
-        team.assignToTeam(user) 
+        # query = "SELECT teamID FROM userteam WHERE userID = %s"
+        # data = (self.userID,)
+        # teamIDs = fetch_query(query, data)
+        # teamNames = []
+        # for teamID in teamIDs:
+        #     query = "SELECT teamName FROM team WHERE teamID = %s" 
+        #     data = (teamID,)
+        #     teamName = fetch_query(query, data)[0]
+        #     teamNames.append(teamName)
+        query = """
+            SELECT team.teamName 
+            FROM team 
+            JOIN userteam ON team.teamID = userteam.teamID 
+            WHERE userteam.userID = %s
+        """
+        data = (self.current_user_userID,)
+        teamNames = fetch_query(query, data)
+        return teamNames
+    
+    def selectTeam(self, teamName):
+        teamID = get_teamID(teamName)
+        if teamID is not None:
+            self.team = Team(teamID)
+            return True
+        else:
+            return False
+    
+    def deleteTeam(self, teamName):
+        teamID = get_teamID(teamName)
+        if teamID is not None:
+            data = (teamID,)
+            query = "DELETE FROM team WHERE teamName = %s"
+            query = "DELETE FROM userteam WHERE teamName = %s"
+            execute_query_and_commit(query, data)
+            return True
+        else:
+            return False
+
  
 class Team(App):
     def __init__(self, teamID):
@@ -167,68 +227,47 @@ class Team(App):
         # Return a string representation of the Team object
         return self.teamID
 
-    def deleteTeam(self, teamName):
-        # Delete a team from the database based on teamID
-        if self.teamID:
-            data = (self.teamID,)
-
-            # Delete the team from the userteam table
-            query = "DELETE FROM userteam WHERE teamID = %s"
-            cursor.execute(query, data)
-
-            # Delete the team from the team table
-            query = "DELETE FROM team WHERE teamID = %s"
-            cursor.execute(query, data)
-            mydb.commit()
-
-            # Set teamID to None to mark it as deleted
-            self.teamID = None
-            return True
-        else:
-            print(f"Team '{teamName}' not found.")
-            return False
-
-    def assignToTeam(self, member):
+    def assignToTeam(self, username):
         # Assign a user (member) to the team
-        userID = member.getUserID()
-        print("This is userID -> " + str(userID))
-        print("This is teamID -> " + str(self.teamID))
-
-        query = "INSERT INTO userteam (userID,teamID) VALUES (%s,%s)"
-        data = (userID, self.teamID)
-        cursor.execute(query, data)
-        mydb.commit()
+        query = "SELECT userID FROM user WHERE username = %s"
+        data = (username,)
+        result = fetch_query(query, data)
+        if result:
+            userID = result[0]
+            query = "INSERT INTO userteam (userID, teamID) VALUES (%s,%s)"
+            data = (userID, self.teamID)
+            execute_query_and_commit(query, data)
+        else:
+            return False
 
     def createProject(self, newProjectName, priority):
-        # Create a new project for the team
-        if self.teamID:
-            query = "INSERT INTO project (projectName, priority, teamID) VALUES (%s, %s, %s)"
-            data = (newProjectName, priority, self.teamID)
-            cursor.execute(query, data)
-            mydb.commit()
-            print(f"Project '{newProjectName}' created successfully.")
-            return True
-        else:
-            print("Cannot create a project for an invalid team.")
-            return False
+        query = "INSERT INTO project (projectName, priority, teamID) VALUES (%s, %s, %s)"
+        data = (newProjectName, priority, self.teamID)
+        execute_query_and_commit(query, data)
 
     def listProjects(self):
         # List all projects associated with the team
-        if self.teamID:
-            query = "SELECT projectName, priority FROM project WHERE teamID = %s"
-            data = (self.teamID,)
-            cursor.execute(query, data)
-            projects = cursor.fetchall()
+        query = "SELECT projectName, priority FROM project WHERE teamID = %s"
+        data = (self.teamID,)
+        projects = fetch_query(query, data)
 
-            if projects:
-                print("Projects for Team ID:", self.teamID)
-                for project in projects:
-                    project_name, project_priority = project
-                    print(f"Project Name: {project_name}, Priority: {project_priority}")
-            else:
-                print("No projects found for this team.")
+        if projects:
+            print("Projects:")
+            for project in projects:
+                project_name, project_priority = project
+                print(f"Project Name: {project_name}, Priority: {project_priority}")
         else:
-            print("Cannot list projects for an invalid team.")
+            print("No projects found for this team.")
+    
+    def deleteProject(self, project_name):
+        projectID = get_projectID(project_name)
+        if projectID:
+            query = "DELETE FROM project WHERE projectID = %s"
+            data = (projectID,)
+            execute_query_and_commit(query, data)
+            return True
+        else:
+            return False
         
  
  
@@ -241,42 +280,62 @@ class Project(App):
         # Convert the Project object to a string, returning its projectID.
         return str(self.projectID)
 
-    def deleteProject(self):
-        # Delete the project from the database by its projectID.
-        cursor.execute("DELETE FROM project WHERE projectID = ?", (self.projectID,))
-        mydb.commit()
-        return True
-
+    # Takes in project name and sorts it with all projects based on priority. Returns bool for success/fail. 
     def addProjectDeadlinePriority(self, priority):
-        # Update the priority of the project in the database.
-        cursor.execute("UPDATE project SET priority = ? WHERE projectID = ?", (priority, self.projectID))
-        mydb.commit()
+        # I don't understand what this method is supposed to do.
+        pass
 
     def trackProgressProject(self):
         # Calculate the progress of the project by summing completed tasks.
-        cursor.execute("SELECT SUM(completed), COUNT(*) FROM task WHERE projectID = ?", (self.projectID,))
-        result = cursor.fetchone()
-        if result and result[1] > 0:
-            completed, total = result
-            return completed / total  # Return the completion ratio.
+        query = "SELECT completed FROM task WHERE projectID = %s"
+        data = (self.projectID, )
+        tasks_completion = fetch_query(query, data)
+        if tasks_completion:
+            completed_sum = sum(completed == 1 for completed in tasks_completion)
+            num_tasks = len(tasks_completion)
+            return completed_sum / num_tasks  # Return the completion ratio.
         else:
             return 0.0  # If there are no tasks, return 0.0.
 
     def createTask(self, title):
         # Create a new task associated with the project in the database.
-        cursor.execute("INSERT INTO task (projectID, title, completed) VALUES (?, ?, 0)", (self.projectID, title))
+        query = "INSERT INTO task (projectID, title, completed) VALUES (%s, %s, 0)"
+
+        cursor.execute(, (self.projectID, title))
         mydb.commit()
 
     def listTasks(self):
         # List all the tasks associated with the project.
-        cursor.execute("SELECT title FROM task WHERE projectID = ?", (self.projectID,))
-        tasks = [row[0] for row in cursor.fetchall()]
-        return tasks
+        query = "SELECT taskName, completed FROM task WHERE projectID = %s"
+        data = (self.projectID,)
+        tasks = fetch_query(query, data)
+        if tasks:
+            print("Tasks:")
+            for task in tasks:
+                taskName, completed = task
+                print(f"Project Name: {project_name}, Priority: {project_priority}")
+        else:
+            print("No tasks found for this project.")
 
-    def deleteTask(self, title):
+    def deleteTask(self, taskName):
         # Delete a specific task associated with the project.
-        cursor.execute("DELETE FROM task WHERE projectID = ? AND title = ?", (self.projectID, title))
-        mydb.commit()
+        taskID = get_taskID(taskName, self.projectID)
+        if taskID is not None:
+            query = "DELETE FROM task WHERE taskID = %s"
+            data = (self.projectID, taskName)
+            execute_query_and_commit(query, data)
+            return True
+        else:
+            return False
+    
+    def selectTask(self, taskName):
+        # Select a task associated with the project.
+        taskID = get_taskID(taskName)
+        if taskID is not None:
+            self.current_task = Task(taskID)
+            return True
+        else:
+            return False
  
  
 class Task(App):
@@ -339,111 +398,95 @@ def taskPage(project):
         print("Please pick either create, delete, show, or showCompleted") 
  
  
+def get_input(prompt: str):
+    print(prompt)
+    input("  -> ")
+
+def list_users():
+    print("Listing all users:") 
+    # show all users 
+    query = "SELECT username FROM user"
+    users = fetch_query(query)
+    for user in users:
+        print(user)
+
 def main(): 
  
     # Initialization 
     app = App() 
-    loggedIn = False 
+    is_logged_in = False 
     onTeamPage = False 
     onProjectPage = False 
     onTaskPage = False 
     teamFocus = None 
-    projectFocus = None 
+    projectFocus = None
  
     # Login / Registry 
-    while loggedIn == False: 
-        print("Enter 'l' to login or 'r' to register.") 
-        userInput = input("->") 
+    while is_logged_in == False: 
+        userInput = get_input("Enter 'l' to login or 'r' to register.")
  
         if userInput == 'r': 
-            user = app.register() 
+            username = get_input("Enter a username: ")
+            password = get_input("Enter a password: ")
+            is_registered = app.register(username, password)
+            if is_registered is True: 
+                print("Registration successful. Proceed to login.") 
+            else: 
+                print("Username already exists.")
         elif userInput == 'l': 
-            loggedIn = app.login() 
-            if loggedIn == True: 
-                onTeamPage = True 
+            username = get_input("Enter your username: ")
+            password = get_input("Enter your password: ")
+            is_logged_in = app.login(username, password) 
+            if is_logged_in is True: 
+                print("Login successful.")
+                onTeamPage = True
+            else:
+                print("Invalid username or password.")
         else: 
             print("Please pick either l or p") 
  
     # print("Thank you for loggin in" + user.username) 
  
     # Teams / Home Page 
-    while onTeamPage == True: 
+    while onTeamPage == True:
+        assert app.current_user != None
         # if there is a team show teams, if they arent, print show teams 
-        print("To create a Team type 'create' \nTo show your teams type 'show' \nTo delete a team type 'delete' \nTo " 
-              "select a team  type 'select' \nTo assign a team  type 'assign'") 
-        userInput = input("->") 
+        userInput = get_input("To create a Team type 'create' \nTo list your teams type 'list' \nTo delete a team type 'delete' \nTo " 
+              "select a team  type 'select' \nTo assign a team  type 'assign'")
  
         if userInput == 'create': 
-            print("Enter a team name: ") 
-            teamName = input("-> ") 
-            team = user.createTeam(teamName) 
+            teamName = get_input("Enter a team name: ")
+            team = app.current_user.createTeam(teamName) 
  
-        elif userInput == 'show': 
-            teamName = user.listTeams() 
+        elif userInput == 'list': 
+            print("Listing all of your teams:")
+            teamName = app.current_user.listTeams() 
  
         elif userInput == 'select': 
-            teamName = user.listTeams() 
+            team_name = get_input("Enter the team name you wish to select:")
  
-            # Get input 
-            print("Enter the team name you wish to select") 
-            teamNameSel = input("-> ") 
- 
-            teamExists = False 
- 
-            query = "SELECT teamName FROM team WHERE teamName = %s" 
-            data = (teamNameSel,) 
-            app.cursor.execute(query, data) 
-            result = app.cursor.fetchone() 
- 
-            # If the team exists, use it and move to the next page 
-            if result: 
-                print("You are viewing the projects associated to team: " + teamNameSel + "\n") 
-                teamExists = True 
-                teamFocus = Team(teamNameSel) # TODO keep working here 
+            is_successful = app.current_user.selectTeam(team_name)
+            if is_successful: 
+                print(f"You are viewing the project page associated to team {team_name}.")
                 onProjectPage = True 
                 onTeamPage = False 
             else: 
                 print("Select a valid team") 
  
-        elif userInput == 'assign': 
+        # elif userInput == 'assign': 
+        #     list_users()
  
-            # show all teams 
-            teamName = user.listTeams() 
- 
-            print("Showing all users") 
-            # show all users 
-            for displayUser in app.users: 
-                print(str(displayUser)) 
- 
-            print("From the provided list above choose a team and user to assign") 
-            teamChosen = input("Chosen Team -> ") 
-            userChosen = input("Chosen User -> ") 
- 
-            # get the team from the string input 
-            for team in user.personalTeams: 
-                if str(team) == teamChosen: 
-                    teamSelected = team 
-                    break 
- 
- 
- 
-            # get the User from the string input 
-            userSelected = None 
-            for sUser in app.users: 
-                if sUser.username == userChosen: 
-                    userSelected = sUser 
-                    break 
- 
-            user.assignUserToTeam(userSelected, teamSelected) 
-            print("Team " + teamChosen + " has been assign to " + userChosen) 
+        #     print("From the provided list above choose a user to assign to a team") 
+        #     teamChosen = get_input("Choose a team:") 
+        #     userChosen = get_input("Choose a user:") 
+        #     user.assignUserToTeam(userSelected, teamSelected) 
+        #     print("Team " + teamChosen + " has been assign to " + userChosen) 
  
         elif userInput == 'delete': 
-            teamName = user.listTeams() 
- 
             # Get input 
             print("Enter the team name you wish to delete") 
-            teamNameDel = input("-> ") 
-            team.deleteTeam(teamNameDel) 
+            team_name = input("-> ") 
+            app.current_user.deleteTeam(team_name) 
  
         else: 
             print("Please pick either create or show, error checking") 
@@ -451,11 +494,10 @@ def main():
     # Projects Page 
     while onProjectPage == True: 
         # if there is a team show teams, if they arent, print show teams 
-        print( 
+        userInput = get_input( 
             "To create a project type 'create' \nTo show your projects type 'show' \nTo delete a project type 'delete' " 
             "\nTo select a project type 'select' \nTo assign deadline priority to a project type 'priority'" 
-            "\nTo view project completion type 'completion' \nTo go back to the team page type 'back'") 
-        userInput = input("->") 
+            "\nTo view project completion type 'completion' \nTo go back to the team page type 'back'")
  
         if userInput == 'create': 
             print("Enter a project name: ") 
