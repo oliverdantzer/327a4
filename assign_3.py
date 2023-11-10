@@ -110,7 +110,7 @@ def get_projectID(project_name):
     data = (project_name, ) 
     result = fetch_query(query, data)
     if result:
-        return result[0]
+        return result[0][0]
     else:
         return None
 
@@ -119,7 +119,7 @@ def get_taskID(task_name, projectID):
     data = (task_name, projectID) 
     result = fetch_query(query, data)
     if result:
-        return result[0]
+        return result[0][0]
     else:
         return None
 
@@ -143,7 +143,7 @@ class App:
         query = "SELECT userID FROM user WHERE username = %s AND password = %s;"
         result = fetch_query(query, data)
         if result:
-            self.current_user = User(result[0])
+            self.current_user = User(result[0][0])
             return True
         else:
             return False
@@ -154,7 +154,7 @@ def get_teamID(team_name):
     data = (team_name, )
     result = fetch_query(query, data)
     if result:
-        return result[0]
+        return result[0][0]
     else:
         return None
 
@@ -170,7 +170,7 @@ class User(App):
     
     # Create team, and assign self user to it
     def createTeam(self, newTeamName):
-        query = "INSERT INTO team (teamName) VALUES (%s, %s, %s)"
+        query = "INSERT INTO team (teamName) VALUES (%s)"
         data = (newTeamName, )
         teamID = execute_query_and_commit(query, data)
         query = "INSERT INTO userteam (userID, teamID) VALUES (%s, %s)"
@@ -210,8 +210,9 @@ class User(App):
         teamID = get_teamID(teamName)
         if teamID is not None:
             data = (teamID,)
-            query = "DELETE FROM team WHERE teamName = %s"
-            query = "DELETE FROM userteam WHERE teamName = %s"
+            query = "DELETE FROM team WHERE teamID = %s"
+            execute_query_and_commit(query, data)
+            query = "DELETE FROM userteam WHERE teamID = %s"
             execute_query_and_commit(query, data)
             return True
         else:
@@ -377,7 +378,7 @@ class Task:
  
 def get_input(prompt: str):
     print(prompt)
-    input("  -> ")
+    return input("  -> ")
 
 def list_users():
     # show all users 
@@ -406,7 +407,7 @@ def main():
     # Login / Registry 
     while is_logged_in == False: 
         userInput = get_input("Enter 'l' to login or 'r' to register.")
- 
+
         if userInput == 'r': 
             username = get_input("Enter a username: ")
             password = get_input("Enter a password: ")
@@ -434,15 +435,21 @@ def main():
         assert app.current_user != None
         # if there is a team show teams, if they arent, print show teams 
         userInput = get_input("To create a Team type 'create' \nTo list your teams type 'list' \nTo delete a team type 'delete' \nTo " 
-              "select a team  type 'select' \nTo assign a team  type 'assign'")
+              "select a team  type 'select'")
  
         if userInput == 'create': 
             teamName = get_input("Enter a team name: ")
             app.current_user.createTeam(teamName) 
+            print("Team created.")
  
         elif userInput == 'list': 
-            print("Listing all of your teams:")
-            app.current_user.listTeams() 
+            result = app.current_user.listTeams()
+            if result:
+                print("Listing all of your teams:")
+                for team in result:
+                    print(team[0])
+            else:
+                print("There are no teams associated with your account. Please create a team.")
  
         elif userInput == 'select': 
             team_name = get_input("Enter the team name you wish to select:")
@@ -458,7 +465,11 @@ def main():
         elif userInput == 'delete': 
             # Get input 
             team_name = get_input("Enter the team name you wish to delete")
-            app.current_user.deleteTeam(team_name) 
+            result = app.current_user.deleteTeam(team_name)
+            if result:
+                print("Team deleted.")
+            else:
+                print("Team not found.")
  
         else: 
             print("Please pick a valid option.") 
