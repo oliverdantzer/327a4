@@ -222,6 +222,7 @@ class Team(App):
     def __init__(self, teamID):
         # Initialize a Team object with a teamID
         self.teamID = teamID
+        self.projectFocus = None
 
     def __str__(self):
         # Return a string representation of the Team object
@@ -275,6 +276,7 @@ class Project(App):
     def __init__(self, projectID):
         # Initialize a Project object with a projectID.
         self.projectID = projectID
+        self.task = Task(self.projectID)
 
     def __str__(self):
         # Convert the Project object to a string, returning its projectID.
@@ -300,9 +302,8 @@ class Project(App):
     def createTask(self, title):
         # Create a new task associated with the project in the database.
         query = "INSERT INTO task (projectID, title, completed) VALUES (%s, %s, 0)"
-
-        cursor.execute(, (self.projectID, title))
-        mydb.commit()
+        data = (self.projectID, title)
+        execute_query_and_commit(query, data)
 
     def listTasks(self):
         # List all the tasks associated with the project.
@@ -313,7 +314,7 @@ class Project(App):
             print("Tasks:")
             for task in tasks:
                 taskName, completed = task
-                print(f"Project Name: {project_name}, Priority: {project_priority}")
+                print(f"Task Name: {taskName}, Completed: {'Yes' if completed else 'No'}")
         else:
             print("No tasks found for this project.")
 
@@ -330,7 +331,7 @@ class Project(App):
     
     def selectTask(self, taskName):
         # Select a task associated with the project.
-        taskID = get_taskID(taskName)
+        taskID = get_taskID(taskName, self.projectID)
         if taskID is not None:
             self.current_task = Task(taskID)
             return True
@@ -338,64 +339,40 @@ class Project(App):
             return False
  
  
-class Task(App):
-    # Constructor for the Task class
-    def __init__(self, taskID):
-        super().__init__()
-        self.taskID = taskID
+class Task:
+    # Constructor for the Task class 
+    def __init__(self, projectID):
+        self.projectID = projectID
 
     # Mark the task as completed in the database
-    def complete(self):
-        cursor.execute("UPDATE task SET completed = 1 WHERE taskID = %s", (self.taskID,))
-        mydb.commit()
+    def complete(self, taskName):
+        taskID = get_taskID(taskName, self.projectID)
+        if taskID is not None:
+            query = "UPDATE task SET completed = 1 WHERE taskID = %s"
+            data = (taskID,)
+            execute_query_and_commit(query, data)
+            return True
+        else:
+            return False
 
     # Assign a member to the task in the database
-    def assignMember(self, member):
-        cursor.execute("UPDATE task SET userID = %s WHERE taskID = %s", (member, self.taskID))
-        mydb.commit()
+    def assignMember(self, taskName, username):
+        taskID = get_taskID(taskName, self.projectID)
+        query = "SELECT userID FROM user WHERE username = %s"
+        data = (username,)
+        userID = fetch_query(query, data)
+        if taskID is not None:
+            query = "UPDATE task SET userID = %s WHERE taskID = %s"
+            data = (userID, taskID)
+            execute_query_and_commit(query, data)
+            return True
+        else:
+            return False
 
         
         
         
         
- 
- 
-def taskPage(project): 
-    print("To create a task type 'create' \nTo show your uncompleted tasks type 'show'" 
-          "\nTo delete a task type 'delete'\nTo show your completed tasks type 'showCompleted' \n" 
-          "\nTo go back to the team page type 'back'") 
-    userInput = input("->") 
- 
-    if userInput == 'create': 
-        print("Enter a task title: ") 
-        title = input("-> ") 
-        project = project.createTask(title) 
- 
-    elif userInput == 'show': 
-        for task in project.tasks: 
-            if not task.completed: 
-                print(task.title) 
- 
-    elif userInput == 'showCompleted': 
-        for task in project.tasks: 
-            if task.completed: 
-                print(task.title) 
- 
-    elif userInput == 'delete': 
- 
-        # Get input 
-        print("Enter title of the task you wish to delete") 
-        title = input("-> ") 
- 
-        for task in project.tasks: 
-            if title == task.title: 
-                project.deleteTask(title) 
- 
-    elif userInput == 'back': 
-        return 'break' 
- 
-    else: 
-        print("Please pick either create, delete, show, or showCompleted") 
  
  
 def get_input(prompt: str):
@@ -403,12 +380,18 @@ def get_input(prompt: str):
     input("  -> ")
 
 def list_users():
-    print("Listing all users:") 
     # show all users 
     query = "SELECT username FROM user"
     users = fetch_query(query)
+    print("Listing all users:") 
     for user in users:
         print(user)
+
+def get_project_team_teammates(project: Project):
+    # show all users that share the team containing the task's projectID
+    query = "SELECT username FROM user WHERE userID IN (SELECT userID FROM userteam WHERE teamID IN (SELECT teamID FROM project WHERE projectID = %s))"
+    data = (project.projectID,)
+    users = fetch_query(query, data)
 
 def main(): 
  
@@ -418,8 +401,7 @@ def main():
     onTeamPage = False 
     onProjectPage = False 
     onTaskPage = False 
-    teamFocus = None 
-    projectFocus = None
+    onTaskFocus = False
  
     # Login / Registry 
     while is_logged_in == False: 
@@ -456,126 +438,143 @@ def main():
  
         if userInput == 'create': 
             teamName = get_input("Enter a team name: ")
-            team = app.current_user.createTeam(teamName) 
+            app.current_user.createTeam(teamName) 
  
         elif userInput == 'list': 
             print("Listing all of your teams:")
-            teamName = app.current_user.listTeams() 
+            app.current_user.listTeams() 
  
         elif userInput == 'select': 
             team_name = get_input("Enter the team name you wish to select:")
  
             is_successful = app.current_user.selectTeam(team_name)
             if is_successful: 
-                print(f"You are viewing the project page associated to team {team_name}.")
+                
                 onProjectPage = True 
                 onTeamPage = False 
             else: 
-                print("Select a valid team") 
- 
-        # elif userInput == 'assign': 
-        #     list_users()
- 
-        #     print("From the provided list above choose a user to assign to a team") 
-        #     teamChosen = get_input("Choose a team:") 
-        #     userChosen = get_input("Choose a user:") 
-        #     user.assignUserToTeam(userSelected, teamSelected) 
-        #     print("Team " + teamChosen + " has been assign to " + userChosen) 
+                print("Select a valid team")
  
         elif userInput == 'delete': 
             # Get input 
-            print("Enter the team name you wish to delete") 
-            team_name = input("-> ") 
+            team_name = get_input("Enter the team name you wish to delete")
             app.current_user.deleteTeam(team_name) 
  
         else: 
-            print("Please pick either create or show, error checking") 
- 
-    # Projects Page 
-    while onProjectPage == True: 
+            print("Please pick a valid option.") 
+
+
+    while onProjectPage: 
+        assert app.current_user
+        assert app.current_user.teamFocus
+        teamFocus = app.current_user.teamFocus
         # if there is a team show teams, if they arent, print show teams 
         userInput = get_input( 
-            "To create a project type 'create' \nTo show your projects type 'show' \nTo delete a project type 'delete' " 
-            "\nTo select a project type 'select' \nTo assign deadline priority to a project type 'priority'" 
-            "\nTo view project completion type 'completion' \nTo go back to the team page type 'back'")
+            """To create a project type 'create' \n
+            To show your projects type 'show' \n
+            To delete a project type 'delete' 
+            \nTo select a project type 'select' 
+            \nTo view project completion type 'completion' \nTo go back to the team page type 'back'""")
  
         if userInput == 'create': 
-            print("Enter a project name: ") 
-            projectName = input("-> ") 
-            project = teamFocus.createProject(projectName) 
+            project_name = get_input("Enter a project name: ")
+            project_priority = get_input("Enter a project priority: ")
+            project = teamFocus.createProject(project_name, project_priority) 
  
         elif userInput == 'show': 
-            teamName = teamFocus.listProjects() 
+            teamFocus.listProjects() 
  
         elif userInput == 'select': 
-            print("Enter the project name you wish to select:") 
-            selection = input("->") 
- 
-            for project in teamFocus.projects: 
-                if selection == project.name: 
-                    projectFocus = project 
-                    onTaskPage = True 
-                    onProjectPage = False 
-                    break 
-            print("Project not found") 
- 
-        elif userInput == 'priority': 
- 
-            # show all projects 
-            projectName = teamFocus.listProjects() 
- 
-            print("From the provided list above choose a project and assign a priority") 
-            projectChosen = input("Chosen Project -> ") 
-            priorityChosen = input("Chosen Priority -> ") 
- 
-            # get the project from the string input 
-            for project in teamFocus.projects: 
-                if str(project) == projectChosen: 
-                    project.addProjectDeadlinePriority(priorityChosen) 
-                    break 
- 
-            print("Project " + projectChosen + " has been prioritized to " + priorityChosen) 
+            project_name = get_input("Enter the project name you wish to select:")
+            is_successful = teamFocus.selectProject(project_name)
+            if is_successful: 
+                
+                onProjectPage = True 
+                onTeamPage = False 
+            else: 
+                print("Select a valid team")
+
  
         elif userInput == 'completion': 
  
             # show all projects 
             projectName = teamFocus.listProjects() 
  
-            print("From the provided list above choose a project to get completion rate") 
-            projectChosen = input("Chosen Project -> ") 
+            projectChosen = get_input("Choose a project to get completion rate. Project name:")
  
             # get the project from the string input 
-            completion = None 
-            for project in teamFocus.projects: 
-                if str(project) == projectChosen: 
-                    completion = project.trackProgressProject() 
-                    break 
+            completion = teamFocus.trackProgressProject(projectChosen)
  
-            print("Project " + projectChosen + " is " + completion + " percent complete") 
+            print(f"Project {projectChosen} is {completion*100}% percent complete") 
  
-        elif userInput == 'delete': 
-            projectName = teamFocus.listProjects() 
- 
+        elif userInput == 'delete':
             # Get input 
-            print("Enter the project you wish to delete") 
-            projectNameDel = input("-> ") 
+            project_name = get_input("Enter the project you wish to delete")
  
-            for project in teamFocus.pojects: 
-                if (projectNameDel == str(project)): 
-                    teamFocus.deleteProject(projectNameDel) 
+            teamFocus.deleteProject(project_name)
  
         elif userInput == 'back': 
             onProjectPage = False 
             onTeamPage = True 
  
         else: 
-            print("Please pick either create or show, error checking") 
+            print("Please enter valid input") 
  
     # Task Page 
-    while onTaskPage == True: 
-        if taskPage(projectFocus) == "break": 
-            onTaskPage = False 
-            onProjectPage = True 
+    while onTaskPage == True:
+        assert app.current_user
+        assert app.current_user.teamFocus
+        assert app.current_user.teamFocus.projectFocus
+        projectFocus = app.current_user.teamFocus.projectFocus
+
+        userInput = get_input( 
+            """To create a task type 'create' \n
+            To list your tasks type 'list' \n
+            To delete a task type 'delete' 
+            \nTo mark a task as completed type 'complete' 
+            \nTo assign a task to a team member type 'assign' \nTo go back to the project page type 'back'""")
+        
+        if userInput == 'create': 
+            task_name = get_input("Enter a task name: ")
+            projectFocus.createTask(project_name, project_priority) 
+            print("Task created.")
+ 
+        elif userInput == 'list': 
+            projectFocus.listTasks() 
+ 
+        elif userInput == 'assign':
+            task_name = get_input("Enter the task name you wish to select:")
+            print("Listing your teammates:")
+            for username in get_project_team_teammates(projectFocus):
+                print(username)
+            username = get_input("Enter the username of the teammate you wish to assign the task to:")
+            projectFocus.task.assignMember(project_name, username)
+            print(f"{username} assigned to {task_name}.")
+
+ 
+        elif userInput == 'completion': 
+            completion = projectFocus.trackProgressProject()
+ 
+            print(f"Project is {completion*100}% percent complete") 
+ 
+        elif userInput == 'delete':
+            # Get input 
+            task_name = get_input("Enter the task name you wish to delete")
+            result = projectFocus.deleteTask(task_name)
+            if result:
+                print("Task deleted.")
+            else:
+                print("Task not found.")
+ 
+        elif userInput == 'back': 
+            onProjectPage = False 
+            onTeamPage = True 
+ 
+        else: 
+            print("Please enter valid input")
+
+
+        
  
  
 if __name__ == "__main__": 
