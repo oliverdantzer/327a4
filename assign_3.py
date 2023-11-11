@@ -4,7 +4,7 @@ import mysql.connector
 mydb = None
 cursor = None
 # These could change based on what your database and password for it are 
-dbPassword = "1234" 
+dbPassword = "Queensiscool5"
 database = "mydatabase" 
 
 # Connect to MySQL 
