@@ -60,8 +60,7 @@ createProjectTable = """
 
 createTaskTable = """ 
     CREATE TABLE IF NOT EXISTS task( 
-    taskID INT AUTO_INCREMENT PRIMARY KEY, 
-    completed VARCHAR(255) NOT NULL, 
+    taskID INT AUTO_INCREMENT PRIMARY KEY,
     taskName VARCHAR(255) NOT NULL,
     projectID INT, 
     userID INT,
@@ -74,7 +73,7 @@ createTaskTable = """
 cursor.execute(createUserTable) 
 cursor.execute(createTeamTable) 
 cursor.execute(createUserTeamTable) 
-cursor.execute(createProjectTable) 
+cursor.execute(createProjectTable)
 cursor.execute(createTaskTable) 
 mydb.commit()
 
@@ -106,7 +105,7 @@ def userExists(username, password):
     return bool(fetch_query(query, data))
 
 def get_projectID(project_name):
-    query = "SELECT projectName FROM project WHERE projectName = %s" 
+    query = "SELECT projectID FROM project WHERE projectName = %s" 
     data = (project_name, ) 
     result = fetch_query(query, data)
     if result:
@@ -201,7 +200,7 @@ class User(App):
     def selectTeam(self, teamName):
         teamID = get_teamID(teamName)
         if teamID is not None:
-            self.team = Team(teamID)
+            self.teamFocus = Team(teamID)
             return True
         else:
             return False
@@ -252,14 +251,7 @@ class Team(App):
         query = "SELECT projectName, priority FROM project WHERE teamID = %s"
         data = (self.teamID,)
         projects = fetch_query(query, data)
-
-        if projects:
-            print("Projects:")
-            for project in projects:
-                project_name, project_priority = project
-                print(f"Project Name: {project_name}, Priority: {project_priority}")
-        else:
-            print("No projects found for this team.")
+        return projects
     
     def deleteProject(self, project_name):
         projectID = get_projectID(project_name)
@@ -270,7 +262,14 @@ class Team(App):
             return True
         else:
             return False
-        
+    
+    def selectProject(self, project_name):
+        projectID = get_projectID(project_name)
+        if projectID:
+            self.projectFocus = Project(projectID)
+            return True
+        else:
+            return False
  
  
 class Project(App):
@@ -302,7 +301,7 @@ class Project(App):
 
     def createTask(self, title):
         # Create a new task associated with the project in the database.
-        query = "INSERT INTO task (projectID, title, completed) VALUES (%s, %s, 0)"
+        query = "INSERT INTO task (projectID, taskName, completed) VALUES (%s, %s, 0)"
         data = (self.projectID, title)
         execute_query_and_commit(query, data)
 
@@ -324,7 +323,7 @@ class Project(App):
         taskID = get_taskID(taskName, self.projectID)
         if taskID is not None:
             query = "DELETE FROM task WHERE taskID = %s"
-            data = (self.projectID, taskName)
+            data = (taskID, )
             execute_query_and_commit(query, data)
             return True
         else:
@@ -377,7 +376,7 @@ class Task:
  
  
 def get_input(prompt: str):
-    print(prompt)
+    print("----\n" + prompt)
     return input("  -> ")
 
 def list_users():
@@ -393,6 +392,7 @@ def get_project_team_teammates(project: Project):
     query = "SELECT username FROM user WHERE userID IN (SELECT userID FROM userteam WHERE teamID IN (SELECT teamID FROM project WHERE projectID = %s))"
     data = (project.projectID,)
     users = fetch_query(query, data)
+    return users
 
 def main(): 
  
@@ -434,8 +434,11 @@ def main():
     while onTeamPage == True:
         assert app.current_user != None
         # if there is a team show teams, if they arent, print show teams 
-        userInput = get_input("To create a Team type 'create' \nTo list your teams type 'list' \nTo delete a team type 'delete' \nTo " 
-              "select a team  type 'select'")
+        userInput = get_input(
+"""To create a Team type 'create'
+To list your teams type 'list'
+To delete a team type 'delete'
+To select a team  type 'select'""")
  
         if userInput == 'create': 
             teamName = get_input("Enter a team name: ")
@@ -480,43 +483,38 @@ def main():
         assert app.current_user.teamFocus
         teamFocus = app.current_user.teamFocus
         # if there is a team show teams, if they arent, print show teams 
-        userInput = get_input( 
-            """To create a project type 'create' \n
-            To show your projects type 'show' \n
-            To delete a project type 'delete' 
-            \nTo select a project type 'select' 
-            \nTo view project completion type 'completion' \nTo go back to the team page type 'back'""")
+        userInput = get_input(
+"""To create a project type 'create'
+To list your projects type 'list'
+To delete a project type 'delete' 
+To select a project type 'select' 
+To go back to the team page type 'back'""")
  
         if userInput == 'create': 
             project_name = get_input("Enter a project name: ")
             project_priority = get_input("Enter a project priority: ")
             project = teamFocus.createProject(project_name, project_priority) 
  
-        elif userInput == 'show': 
-            teamFocus.listProjects() 
+        elif userInput == 'list': 
+            
+            projects = teamFocus.listProjects()
+            if projects:
+                print("Listing projects:")
+                for project in projects:
+                    project_name, project_priority = project
+                    print(f"Project Name: {project_name}, Priority: {project_priority}")
+            else:
+                print("No projects found for this team.")
  
         elif userInput == 'select': 
             project_name = get_input("Enter the project name you wish to select:")
             is_successful = teamFocus.selectProject(project_name)
             if is_successful: 
                 
-                onProjectPage = True 
-                onTeamPage = False 
+                onProjectPage = False 
+                onTaskPage = True
             else: 
                 print("Select a valid team")
-
- 
-        elif userInput == 'completion': 
- 
-            # show all projects 
-            projectName = teamFocus.listProjects() 
- 
-            projectChosen = get_input("Choose a project to get completion rate. Project name:")
- 
-            # get the project from the string input 
-            completion = teamFocus.trackProgressProject(projectChosen)
- 
-            print(f"Project {projectChosen} is {completion*100}% percent complete") 
  
         elif userInput == 'delete':
             # Get input 
@@ -538,20 +536,29 @@ def main():
         assert app.current_user.teamFocus.projectFocus
         projectFocus = app.current_user.teamFocus.projectFocus
 
-        userInput = get_input( 
-            """To create a task type 'create' \n
-            To list your tasks type 'list' \n
-            To delete a task type 'delete' 
-            \nTo mark a task as completed type 'complete' 
-            \nTo assign a task to a team member type 'assign' \nTo go back to the project page type 'back'""")
+        userInput = get_input(
+"""To create a task type 'create'
+To list your tasks type 'list'
+To delete a task type 'delete' 
+To mark a task as completed type 'complete' 
+To assign a task to a team member type 'assign'
+To go back to the project page type 'back'""")
         
         if userInput == 'create': 
             task_name = get_input("Enter a task name: ")
-            projectFocus.createTask(project_name, project_priority) 
+            projectFocus.createTask(task_name) 
             print("Task created.")
  
         elif userInput == 'list': 
             projectFocus.listTasks() 
+        
+        elif userInput == "complete":
+            task_name = get_input("Enter the task name you wish to select:")
+            result = projectFocus.task.complete(task_name)
+            if result:
+                print("Task completed")
+            else:
+                print("Task name not found")
  
         elif userInput == 'assign':
             task_name = get_input("Enter the task name you wish to select:")
@@ -559,7 +566,7 @@ def main():
             for username in get_project_team_teammates(projectFocus):
                 print(username)
             username = get_input("Enter the username of the teammate you wish to assign the task to:")
-            projectFocus.task.assignMember(project_name, username)
+            projectFocus.task.assignMember(task_name, username)
             print(f"{username} assigned to {task_name}.")
 
  
