@@ -403,199 +403,205 @@ def main():
     onProjectPage = False 
     onTaskPage = False 
     onTaskFocus = False
- 
-    # Login / Registry 
-    while is_logged_in == False: 
-        userInput = get_input("Enter 'l' to login or 'r' to register.")
+    while True:
+        # Login / Registry 
+        while is_logged_in == False: 
+            userInput = get_input("Enter 'l' to login or 'r' to register.")
 
-        if userInput == 'r': 
-            username = get_input("Enter a username: ")
-            password = get_input("Enter a password: ")
-            is_registered = app.register(username, password)
-            if is_registered is True: 
-                print("Registration successful. Proceed to login.") 
+            if userInput == 'r': 
+                username = get_input("Enter a username: ")
+                password = get_input("Enter a password: ")
+                is_registered = app.register(username, password)
+                if is_registered is True: 
+                    print("Registration successful. Proceed to login.") 
+                else: 
+                    print("Username already exists.")
+            elif userInput == 'l': 
+                username = get_input("Enter your username: ")
+                password = get_input("Enter your password: ")
+                is_logged_in = app.login(username, password) 
+                if is_logged_in is True: 
+                    print("Login successful.")
+                    onTeamPage = True
+                else:
+                    print("Invalid username or password.")
             else: 
-                print("Username already exists.")
-        elif userInput == 'l': 
-            username = get_input("Enter your username: ")
-            password = get_input("Enter your password: ")
-            is_logged_in = app.login(username, password) 
-            if is_logged_in is True: 
-                print("Login successful.")
-                onTeamPage = True
-            else:
-                print("Invalid username or password.")
-        else: 
-            print("Please pick either l or p") 
- 
-    # print("Thank you for loggin in" + user.username) 
- 
-    # Teams / Home Page 
-    while onTeamPage == True:
-        assert app.current_user != None
-        # if there is a team show teams, if they arent, print show teams 
-        userInput = get_input(
-"""To create a Team type 'create'
-To list your teams type 'list'
-To delete a team type 'delete'
-To select a team  type 'select'""")
- 
-        if userInput == 'create': 
-            teamName = get_input("Enter a team name: ")
-            app.current_user.createTeam(teamName) 
-            print("Team created.")
- 
-        elif userInput == 'list': 
-            result = app.current_user.listTeams()
-            if result:
-                print("Listing all of your teams:")
-                for team in result:
-                    print(team[0])
-            else:
-                print("There are no teams associated with your account. Please create a team.")
- 
-        elif userInput == 'select': 
-            team_name = get_input("Enter the team name you wish to select:")
- 
-            is_successful = app.current_user.selectTeam(team_name)
-            if is_successful: 
-                
-                onProjectPage = True 
-                onTeamPage = False 
-            else: 
-                print("Select a valid team")
- 
-        elif userInput == 'delete': 
-            # Get input 
-            team_name = get_input("Enter the team name you wish to delete")
-            result = app.current_user.deleteTeam(team_name)
-            if result:
-                print("Team deleted.")
-            else:
-                print("Team not found.")
- 
-        else: 
-            print("Please pick a valid option.") 
-
-
-    while onProjectPage: 
-        assert app.current_user
-        assert app.current_user.teamFocus
-        teamFocus = app.current_user.teamFocus
-        # if there is a team show teams, if they arent, print show teams 
-        userInput = get_input(
-"""To create a project type 'create'
-To list your projects type 'list'
-To delete a project type 'delete' 
-To select a project type 'select' 
-To go back to the team page type 'back'""")
- 
-        if userInput == 'create': 
-            project_name = get_input("Enter a project name: ")
-            project_priority = get_input("Enter a project priority: ")
-            project = teamFocus.createProject(project_name, project_priority) 
- 
-        elif userInput == 'list': 
+                print("Please pick either l or p") 
+    
+        # print("Thank you for loggin in" + user.username) 
+    
+        # Teams / Home Page 
+        while onTeamPage == True:
+            assert app.current_user != None
+            # if there is a team show teams, if they arent, print show teams 
+            userInput = get_input(
+    """To create a Team type 'create'
+    To list your teams type 'list'
+    To delete a team type 'delete'
+    To select a team  type 'select'
+    To go back to the login page type 'back'""")
+    
+            if userInput == 'create': 
+                teamName = get_input("Enter a team name: ")
+                app.current_user.createTeam(teamName) 
+                print("Team created.")
+    
+            elif userInput == 'list': 
+                result = app.current_user.listTeams()
+                if result:
+                    print("Listing all of your teams:")
+                    for team in result:
+                        print(team[0])
+                else:
+                    print("There are no teams associated with your account. Please create a team.")
+    
+            elif userInput == 'select': 
+                team_name = get_input("Enter the team name you wish to select:")
+    
+                is_successful = app.current_user.selectTeam(team_name)
+                if is_successful: 
+                    
+                    onProjectPage = True 
+                    onTeamPage = False 
+                else: 
+                    print("Select a valid team")
+    
+            elif userInput == 'delete': 
+                # Get input 
+                team_name = get_input("Enter the team name you wish to delete")
+                result = app.current_user.deleteTeam(team_name)
+                if result:
+                    print("Team deleted.")
+                else:
+                    print("Team not found.")
             
-            projects = teamFocus.listProjects()
-            if projects:
-                print("Listing projects:")
-                for project in projects:
-                    project_name, project_priority = project
-                    print(f"Project Name: {project_name}, Priority: {project_priority}")
-            else:
-                print("No projects found for this team.")
- 
-        elif userInput == 'select': 
-            project_name = get_input("Enter the project name you wish to select:")
-            is_successful = teamFocus.selectProject(project_name)
-            if is_successful: 
-                
-                onProjectPage = False 
-                onTaskPage = True
+            elif userInput == 'back':
+                onTeamPage = False
+                is_logged_in = False
+    
             else: 
-                print("Select a valid team")
- 
-        elif userInput == 'delete':
-            # Get input 
-            project_name = get_input("Enter the project you wish to delete")
- 
-            teamFocus.deleteProject(project_name)
- 
-        elif userInput == 'back': 
-            onProjectPage = False 
-            onTeamPage = True 
- 
-        else: 
-            print("Please enter valid input") 
- 
-    # Task Page 
-    while onTaskPage == True:
-        assert app.current_user
-        assert app.current_user.teamFocus
-        assert app.current_user.teamFocus.projectFocus
-        projectFocus = app.current_user.teamFocus.projectFocus
+                print("Please pick a valid option.") 
 
-        userInput = get_input(
-"""To create a task type 'create'
-To list your tasks type 'list'
-To delete a task type 'delete' 
-To mark a task as completed type 'complete' 
-To assign a task to a team member type 'assign'
-To go back to the project page type 'back'""")
-        
-        if userInput == 'create': 
-            task_name = get_input("Enter a task name: ")
-            projectFocus.createTask(task_name) 
-            print("Task created.")
- 
-        elif userInput == 'list': 
-            projectFocus.listTasks() 
-        
-        elif userInput == "complete":
-            task_name = get_input("Enter the task name you wish to select:")
-            result = projectFocus.task.complete(task_name)
-            if result:
-                print("Task completed")
-            else:
-                print("Task name not found")
- 
-        elif userInput == 'assign':
-            task_name = get_input("Enter the task name you wish to select:")
-            print("Listing your teammates:")
-            for username in get_project_team_teammates(projectFocus):
-                print(username)
-            username = get_input("Enter the username of the teammate you wish to assign the task to:")
-            projectFocus.task.assignMember(task_name, username)
-            print(f"{username} assigned to {task_name}.")
 
- 
-        elif userInput == 'completion': 
-            completion = projectFocus.trackProgressProject()
- 
-            print(f"Project is {completion*100}% percent complete") 
- 
-        elif userInput == 'delete':
-            # Get input 
-            task_name = get_input("Enter the task name you wish to delete")
-            result = projectFocus.deleteTask(task_name)
-            if result:
-                print("Task deleted.")
-            else:
-                print("Task not found.")
- 
-        elif userInput == 'back': 
-            onProjectPage = False 
-            onTeamPage = True 
- 
-        else: 
-            print("Please enter valid input")
+        while onProjectPage: 
+            assert app.current_user
+            assert app.current_user.teamFocus
+            teamFocus = app.current_user.teamFocus
+            # if there is a team show teams, if they arent, print show teams 
+            userInput = get_input(
+    """To create a project type 'create'
+    To list your projects type 'list'
+    To delete a project type 'delete' 
+    To select a project type 'select' 
+    To go back to the team page type 'back'""")
+    
+            if userInput == 'create': 
+                project_name = get_input("Enter a project name: ")
+                project_priority = get_input("Enter a project priority: ")
+                project = teamFocus.createProject(project_name, project_priority) 
+    
+            elif userInput == 'list': 
+                
+                projects = teamFocus.listProjects()
+                if projects:
+                    print("Listing projects:")
+                    for project in projects:
+                        project_name, project_priority = project
+                        print(f"Project Name: {project_name}, Priority: {project_priority}")
+                else:
+                    print("No projects found for this team.")
+    
+            elif userInput == 'select': 
+                project_name = get_input("Enter the project name you wish to select:")
+                is_successful = teamFocus.selectProject(project_name)
+                if is_successful: 
+                    
+                    onProjectPage = False 
+                    onTaskPage = True
+                else: 
+                    print("Select a valid team")
+    
+            elif userInput == 'delete':
+                # Get input 
+                project_name = get_input("Enter the project you wish to delete")
+    
+                teamFocus.deleteProject(project_name)
+    
+            elif userInput == 'back': 
+                onProjectPage = False 
+                onTeamPage = True 
+    
+            else: 
+                print("Please enter valid input") 
+    
+        # Task Page 
+        while onTaskPage == True:
+            assert app.current_user
+            assert app.current_user.teamFocus
+            assert app.current_user.teamFocus.projectFocus
+            projectFocus = app.current_user.teamFocus.projectFocus
+
+            userInput = get_input(
+    """To create a task type 'create'
+    To list your tasks type 'list'
+    To delete a task type 'delete' 
+    To mark a task as completed type 'complete' 
+    To assign a task to a team member type 'assign'
+    To go back to the project page type 'back'""")
+            
+            if userInput == 'create': 
+                task_name = get_input("Enter a task name: ")
+                projectFocus.createTask(task_name) 
+                print("Task created.")
+    
+            elif userInput == 'list': 
+                projectFocus.listTasks() 
+            
+            elif userInput == "complete":
+                task_name = get_input("Enter the task name you wish to select:")
+                result = projectFocus.task.complete(task_name)
+                if result:
+                    print("Task completed")
+                else:
+                    print("Task name not found")
+    
+            elif userInput == 'assign':
+                task_name = get_input("Enter the task name you wish to select:")
+                print("Listing your teammates:")
+                for username in get_project_team_teammates(projectFocus):
+                    print(username)
+                username = get_input("Enter the username of the teammate you wish to assign the task to:")
+                projectFocus.task.assignMember(task_name, username)
+                print(f"{username} assigned to {task_name}.")
+
+    
+            elif userInput == 'completion': 
+                completion = projectFocus.trackProgressProject()
+    
+                print(f"Project is {completion*100}% percent complete") 
+    
+            elif userInput == 'delete':
+                # Get input 
+                task_name = get_input("Enter the task name you wish to delete")
+                result = projectFocus.deleteTask(task_name)
+                if result:
+                    print("Task deleted.")
+                else:
+                    print("Task not found.")
+    
+            elif userInput == 'back': 
+                onProjectPage = True
+                onTaskPage = False
+    
+            else: 
+                print("Please enter valid input")
 
 
         
  
  
 if __name__ == "__main__": 
+
     main() 
  
 
