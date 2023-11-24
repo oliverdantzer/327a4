@@ -46,7 +46,7 @@ createUserTeamTable = """
         ); 
     """
 
-# TODO add the required parameters
+
 createProjectTable = """ 
     CREATE TABLE IF NOT EXISTS project( 
     projectID INT AUTO_INCREMENT PRIMARY KEY, 
@@ -231,17 +231,65 @@ class Team(App):
         return self.teamID
 
     def assignToTeam(self, username):
-        # Assign a user (member) to the team
-        query = "SELECT userID FROM user WHERE username = %s"
-        data = (username,)
-        result = fetch_query(query, data)
-        if result:
-            userID = result[0]
-            query = "INSERT INTO userteam (userID, teamID) VALUES (%s,%s)"
-            data = (userID, self.teamID)
-            execute_query_and_commit(query, data)
-        else:
-            return False
+
+        #WHITE BOX TESTING
+        with open('WBTeamOutput.txt', 'w') as f:
+            f.write("---->Block 4\n")
+
+            # Assign a user (member) to the team
+            if username.isalnum():
+                f.write("---->Block 5\n")
+                f.write("Check, Username is alphanumeric\n")
+
+                query = "SELECT userID FROM user WHERE username = %s"
+                data = (username,)
+                userResult = fetch_query(query, data)
+
+                if userResult:
+                    f.write("---->Block 6\n")
+                    f.write("Check, Username has been found within the database\n")
+
+                    print("")
+                    query = "SELECT EXISTS(SELECT * FROM team WHERE teamID = %s);"
+                    data = (self.teamID,)
+                    teamResultExists = fetch_query(query, data)
+
+                    if teamResultExists:
+                        f.write("---->Block 7\n")
+                        f.write("Check, Team has been found within the database\n")
+
+                        userID = userResult[0][0]
+
+
+                        query = "SELECT EXISTS(SELECT * FROM userteam WHERE userID = %s and teamID = %s);"
+                        data = (userID, self.teamID)
+                        duplicateCheck = fetch_query(query, data)
+
+                        if duplicateCheck:
+                            f.write("---->Block 8\n")
+                            print("This user is already assigned to this team")
+
+                        else:
+                            f.write("---->Block 9\n")
+                            query = "INSERT INTO userteam (userID, teamID) VALUES (%s,%s)"
+                            data = (userID, self.teamID)
+                            execute_query_and_commit(query, data)
+
+
+
+                    else:
+                        f.write("---->Block 10\n")
+                        f.write("FAILED, team does not exist in the database\n")
+                else:
+                    f.write("---->Block 11\n")
+                    f.write("FAILED, username does not exist in the database")
+                    return False
+
+            else:
+                f.write("---->Block 12\n")
+                f.write("FAILED, username passed is not alphanumeric")
+                # write here to an open text file
+                return False
 
     def createProject(self, newProjectName, priority):
         query = "INSERT INTO project (projectName, priority, teamID) VALUES (%s, %s, %s)"
@@ -438,6 +486,7 @@ def main():
                 To list your teams type 'list'
                 To delete a team type 'delete'
                 To select a team  type 'select'
+                To add a member to a team type 'assign'
                 To go back to the login page type 'back'""")
 
             if userInput == 'create':
@@ -473,6 +522,26 @@ def main():
                     print("Team deleted.")
                 else:
                     print("Team not found.")
+
+            elif userInput == 'assign':
+
+                # WHITE BOX TESTING
+                with open('WBTeamOutput.txt', 'w') as f:
+                    f.write("---->Block 1\n")
+                    team_name = get_input("Enter the team name you wish to add members to:")
+                    is_successful = app.current_user.selectTeam(team_name)
+
+                    # Check if selecting the team is successful
+                    if is_successful:
+                        f.write("---->Block 3\n")
+                        currentTeam = app.current_user.teamFocus
+                        username = get_input("Enter type in the username you wish to add to this team:")
+                        currentTeam.assignToTeam(username)
+
+                        print(f"{username} assigned to {team_name}.\n")
+                    else:
+                        f.write("---->Block 13\n")
+                        print("Select a valid team\n")
 
             elif userInput == 'back':
                 onTeamPage = False
