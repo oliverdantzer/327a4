@@ -267,13 +267,14 @@ class Team(App):
 
                         if duplicateCheck:
                             f.write("---->Block 8\n")
-                            print("This user is already assigned to this team")
+                            # print("This user is already assigned to this team")
 
                         else:
                             f.write("---->Block 9\n")
                             query = "INSERT INTO userteam (userID, teamID) VALUES (%s,%s)"
                             data = (userID, self.teamID)
                             execute_query_and_commit(query, data)
+
 
 
 
