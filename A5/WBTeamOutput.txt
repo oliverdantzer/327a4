@@ -1,8 +1,0 @@
----->Block 1
----->Block 3
-Check, Username is alphanumeric
----->Block 6
-Check, Username has been found within the database
----->Block 7
-Check, Team has been found within the database
----->Block 8
