@@ -623,6 +623,7 @@ def main():
                     if teamID is not None:
                         f.write("---->Block 3\n")
                         team = Team(teamID)
+                        f.flush() # flush the buffer to ensure the file is written to before the test is run
                         username = get_input("Enter the username you wish to add to this team:")
                         result = team.assignToTeam(username)
 
