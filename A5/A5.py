@@ -141,7 +141,7 @@ class App:
     def __init__(self):
         self.current_user: User | None = None
 
-    def register(self, username, password):
+    def register(self, username, password) -> bool:
         # Register a new user
         if userExists(username, password):
             return False
@@ -150,7 +150,7 @@ class App:
         execute_query_and_commit(query, data)
         return True
 
-    def login(self, username, password):
+    def login(self, username, password) -> bool:
         # User login
         data = (username, password)
         query = "SELECT userID FROM user WHERE username = %s AND password = %s;"
@@ -217,7 +217,7 @@ class User(App):
         teamNames = fetch_query(query, data)
         return teamNames
 
-    def selectTeam(self, teamName):
+    def selectTeam(self, teamName) -> bool:
         teamID = get_teamID(teamName)
         if teamID is not None:
             self.teamFocus = Team(teamID)
@@ -225,7 +225,7 @@ class User(App):
         else:
             return False
 
-    def deleteTeam(self, teamName):
+    def deleteTeam(self, teamName) -> bool:
         teamID = get_teamID(teamName)
         if teamID is not None:
             data = (teamID,)
@@ -248,7 +248,7 @@ class Team(App):
         # Return a string representation of the Team object
         return self.teamID
 
-    def assignToTeam(self, username):
+    def assignToTeam(self, username) -> bool:
 
         #WHITE BOX TESTING
         with open('WBTeamOutput.txt', 'a') as f:
@@ -351,7 +351,7 @@ class Team(App):
         else:
             return False
     
-    def listTeammates(self):
+    def listTeammates(self) -> list:
         # List all teammates associated with the team
         # Get the userID from the userteam
         query = "SELECT userID FROM userteam WHERE teamID = %s"
@@ -379,12 +379,7 @@ class Project(App):
         # Convert the Project object to a string, returning its projectID.
         return str(self.projectID)
 
-    # Takes in project name and sorts it with all projects based on priority. Returns bool for success/fail.
-    def addProjectDeadlinePriority(self, priority):
-        # I don't understand what this method is supposed to do.
-        pass
-
-    def trackProgressProject(self):
+    def trackProgressProject(self) -> float:
         # Calculate the progress of the project by summing completed tasks.
         with open('WBProjectOutput.txt', 'a') as f:
             query = "SELECT completed FROM task WHERE projectID = %s"  # Statement 1
@@ -403,7 +398,7 @@ class Project(App):
                 f.write("Statement 6\n")  # Statement 1
                 return 0.0  # If there are no tasks, return 0.0.
 
-    def createTask(self, title):
+    def createTask(self, title) -> bool:
         # Create a new task associated with the project in the database.
         query = "SELECT EXISTS(SELECT * FROM task WHERE taskName = %s AND projectID = %s)"
         data = (title, self.projectID)
@@ -428,7 +423,7 @@ class Project(App):
         else:
             print("No tasks found for this project.")
 
-    def deleteTask(self, taskName):
+    def deleteTask(self, taskName) -> bool:
         # Delete a specific task associated with the project.
         taskID = get_taskID(taskName, self.projectID)
         if taskID is not None:
@@ -439,7 +434,7 @@ class Project(App):
         else:
             return False
 
-    def selectTask(self, taskName):
+    def selectTask(self, taskName) -> bool:
         # Select a task associated with the project.
         taskID = get_taskID(taskName, self.projectID)
         if taskID is not None:
@@ -455,7 +450,7 @@ class Task:
         self.projectID = projectID
 
     # Mark the task as completed in the database
-    def complete(self, taskName):
+    def complete(self, taskName) -> bool:
         taskID = get_taskID(taskName, self.projectID)
         if taskID is not None:
             query = "UPDATE task SET completed = 1 WHERE taskID = %s"
@@ -481,7 +476,7 @@ class Task:
         return True
 
 
-def get_input(prompt: str):
+def get_input(prompt: str) -> str:
     print("----\n" + prompt)
     return input("  -> ")
 
@@ -495,7 +490,7 @@ def list_users():
         print(user)
 
 
-def get_project_team_teammates(project: Project):
+def get_project_team_teammates(project: Project) -> list:
     # show all users that share the team containing the task's projectID
     
     # Get the teamID from the project
