@@ -1,4 +1,5 @@
 import mysql.connector
+from datetime import datetime
 
 mydb = None
 cursor = None
@@ -340,15 +341,22 @@ class Project(App):
 
     def trackProgressProject(self):
         # Calculate the progress of the project by summing completed tasks.
-        query = "SELECT completed FROM task WHERE projectID = %s"
-        data = (self.projectID,)
-        tasks_completion = fetch_query(query, data)
-        if tasks_completion:
-            completed_sum = sum(completed == 1 for completed in tasks_completion)
-            num_tasks = len(tasks_completion)
-            return completed_sum / num_tasks  # Return the completion ratio.
-        else:
-            return 0.0  # If there are no tasks, return 0.0.
+        with open('WBProjectOutput.txt', 'w') as f:
+            query = "SELECT completed FROM task WHERE projectID = %s"  # Statement 1
+            f.write("Statement 1\n")
+            data = (self.projectID,)  # Statement 2
+            f.write("Statement 2\n")
+            tasks_completion = fetch_query(query, data)  # Statement 3
+            f.write("Statement 3\n")
+            if tasks_completion:  # Statement 4
+                completed_sum = sum(completed == 1 for completed in tasks_completion)  # Statement 5
+                f.write("Statement 4\n")
+                num_tasks = len(tasks_completion)  # Statement 6
+                f.write("Statement 5\n")
+                return completed_sum / num_tasks  # Return the completion ratio.
+            else:  # Statement 1
+                f.write("Statement 6\n")  # Statement 1
+                return 0.0  # If there are no tasks, return 0.0.
 
     def createTask(self, title):
         # Create a new task associated with the project in the database.
@@ -533,7 +541,7 @@ def main():
                     is_successful = app.current_user.selectTeam(team_name)
 
                     # Check if selecting the team is successful
-                    if is_successful:
+                    if is_successful and app.current_user.teamFocus:
                         f.write("---->Block 3\n")
                         currentTeam = app.current_user.teamFocus
                         username = get_input("Enter type in the username you wish to add to this team:")
@@ -644,9 +652,14 @@ def main():
 
 
             elif userInput == 'completion':
-                completion = projectFocus.trackProgressProject()
+                # get the completion percentage of the project
+                # WHITE BOX TESTING
+                with open('WBTeamOutput.txt', 'w') as f:
+                    f.write(f"\n\ntrackProgressProject 'white box statement coverage test' {datetime.now()}:\n")
+                    completion = projectFocus.trackProgressProject()
+                    print(f"Project is {completion * 100}% percent complete")
 
-                print(f"Project is {completion * 100}% percent complete")
+                    f.write(f"TEST COMPLETE\n")
 
             elif userInput == 'delete':
                 # Get input

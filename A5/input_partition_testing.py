@@ -2,17 +2,7 @@ import assign_3
 import unittest
 import mysql.connector
 
-# assign_3.Project.trackProgressProject(self):
-#         # Calculate the progress of the project by summing completed tasks.
-#         query = "SELECT completed FROM task WHERE projectID = %s"
-#         data = (self.projectID, )
-#         tasks_completion = fetch_query(query, data)
-#         if tasks_completion:
-#             completed_sum = sum(completed == 1 for completed in tasks_completion)
-#             num_tasks = len(tasks_completion)
-#             return completed_sum / num_tasks  # Return the completion ratio.
-#         else:
-#             return 0.0  # If there are no tasks, return 0.0.
+# HIS IS BLACK BOX NO WHIET BOX
 
 def insert_test_task(db, cursor, projectID, completed):
     query = "INSERT INTO task (projectID, taskName, completed) VALUES (%s, %s, 1)"
