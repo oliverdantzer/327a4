@@ -1,5 +1,6 @@
 import mysql.connector
 from datetime import datetime
+import os
 
 mydb = None
 cursor = None
@@ -385,7 +386,7 @@ class Project(App):
 
     def trackProgressProject(self):
         # Calculate the progress of the project by summing completed tasks.
-        with open('WBProjectOutput.txt', 'w') as f:
+        with open('WBProjectOutput.txt', 'a') as f:
             query = "SELECT completed FROM task WHERE projectID = %s"  # Statement 1
             f.write("Statement 1\n")
             data = (self.projectID,)  # Statement 2
@@ -700,7 +701,9 @@ def main():
             projectFocus = app.current_user.teamFocus.projectFocus
 
             userInput = get_input(
-                """To create a task type 'create'
+                """
+                To get project completion percentage type 'completion'
+                To create a task type 'create'
                 To list your tasks type 'list'
                 To delete a task type 'delete' 
                 To mark a task as completed type 'complete' 
@@ -741,12 +744,16 @@ def main():
             elif userInput == 'completion':
                 # get the completion percentage of the project
                 # WHITE BOX TESTING
-                with open('WBTeamOutput.txt', 'w') as f:
+                if not os.path.exists('WBProjectOutput.txt'):
+                    open('WBProjectOutput.txt', 'w').close()
+                with open('WBProjectOutput.txt', 'a') as f:
                     f.write(f"\n\ntrackProgressProject 'white box statement coverage test' {datetime.now()}:\n")
+                    f.flush() # flush the buffer to ensure the file is written to before the test is run
                     completion = projectFocus.trackProgressProject()
                     print(f"Project is {completion * 100}% percent complete")
 
                     f.write(f"TEST COMPLETE\n")
+                    f.flush()
 
             elif userInput == 'delete':
                 # Get input
