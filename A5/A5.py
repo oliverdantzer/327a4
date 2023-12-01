@@ -474,7 +474,6 @@ class Task:
         if taskID is None:
             print("Task not found.")
             return False
-        print(userID, taskID)
         query = "UPDATE task SET userID = %s WHERE taskID = %s"
         data = (userID, taskID)
         execute_query_and_commit(query, data)
