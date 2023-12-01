@@ -614,7 +614,7 @@ def main():
                 if not os.path.exists('WBTeamOutput.txt'):
                     open('WBTeamOutput.txt', 'w').close()
                 with open('WBTeamOutput.txt', 'a') as f:
-                    f.write(f"\n\ntrackProgressProject 'white box statement coverage test' {datetime.now()}:\n")
+                    f.write(f"\n\nassignToTeam 'white box block coverage test' {datetime.now()}:\n")
                     f.write("---->Block 1\n")
                     team_name = get_input("Enter the team name you wish to add members to:")
                     teamID = get_teamID(team_name)
