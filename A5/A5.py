@@ -78,7 +78,6 @@ cursor.execute(createProjectTable)
 cursor.execute(createTaskTable)
 mydb.commit()
 
-
 # Executes query with data and returns the result as list
 def fetch_query(query: str, data = None):
     # print(query, data)
@@ -198,15 +197,7 @@ class User(App):
 
     # List teams user is in
     def listTeams(self):
-        # query = "SELECT teamID FROM userteam WHERE userID = %s"
-        # data = (self.userID,)
-        # teamIDs = fetch_query(query, data)
-        # teamNames = []
-        # for teamID in teamIDs:
-        #     query = "SELECT teamName FROM team WHERE teamID = %s"
-        #     data = (teamID,)
-        #     teamName = fetch_query(query, data)[0]
-        #     teamNames.append(teamName)
+
         query = """
             SELECT team.teamName 
             FROM team 
@@ -290,9 +281,6 @@ class Team(App):
                             data = (userID, self.teamID)
                             execute_query_and_commit(query, data)
                             return True
-
-
-
 
                     else:
                         f.write("---->Block 10\n")
