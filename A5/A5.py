@@ -4,7 +4,7 @@ from datetime import datetime
 mydb = None
 cursor = None
 # These could change based on what your database and password for it are
-dbPassword = "Queensiscool5"
+dbPassword = "1234"
 database = "mydatabase"
 
 # Connect to MySQL
@@ -79,7 +79,7 @@ mydb.commit()
 
 
 # Executes query with data and returns the result as list
-def fetch_query(query: str, data: tuple = ()):
+def fetch_query(query: str, data = None):
     # print(query, data)
     if data:
         cursor.execute(query, data)
@@ -104,6 +104,16 @@ def userExists(username, password):
     data = (username, password)
 
     return bool(fetch_query(query, data))
+
+
+def get_userID(username):
+    query = "SELECT userID FROM user WHERE username = %s"
+    data = (username,)
+    result = fetch_query(query, data)
+    if result:
+        return result[0][0]
+    else:
+        return None
 
 
 def get_projectID(project_name):
@@ -171,13 +181,19 @@ class User(App):
         return self.current_user_userID
 
     # Create team, and assign self user to it
-    def createTeam(self, newTeamName):
+    def createTeam(self, newTeamName) -> bool:
+        query = "SELECT EXISTS(SELECT * FROM team WHERE teamName = %s)"
+        data = (newTeamName,)
+        teamExists = fetch_query(query, data)[0][0]
+        if teamExists:
+            return False
         query = "INSERT INTO team (teamName) VALUES (%s)"
         data = (newTeamName,)
         teamID = execute_query_and_commit(query, data)
         query = "INSERT INTO userteam (userID, teamID) VALUES (%s, %s)"
         data = (self.current_user_userID, teamID)
         execute_query_and_commit(query, data)
+        return True
 
     # List teams user is in
     def listTeams(self):
@@ -242,11 +258,9 @@ class Team(App):
                 f.write("---->Block 5\n")
                 f.write("Check, Username is alphanumeric\n")
 
-                query = "SELECT userID FROM user WHERE username = %s"
-                data = (username,)
-                userResult = fetch_query(query, data)
+                userID = get_userID(username)
 
-                if userResult:
+                if userID:
                     f.write("---->Block 6\n")
                     f.write("Check, Username has been found within the database\n")
 
@@ -259,22 +273,22 @@ class Team(App):
                         f.write("---->Block 7\n")
                         f.write("Check, Team has been found within the database\n")
 
-                        userID = userResult[0][0]
 
-
-                        query = "SELECT EXISTS(SELECT * FROM userteam WHERE userID = %s and teamID = %s);"
+                        query = "SELECT * FROM userteam WHERE userID = %s and teamID = %s"
                         data = (userID, self.teamID)
-                        duplicateCheck = fetch_query(query, data)
+                        intersection = fetch_query(query, data)
 
-                        if duplicateCheck:
+                        if intersection:
                             f.write("---->Block 8\n")
-                            # print("This user is already assigned to this team")
+                            print("This user is already assigned to this team")
+                            return False
 
                         else:
                             f.write("---->Block 9\n")
                             query = "INSERT INTO userteam (userID, teamID) VALUES (%s,%s)"
                             data = (userID, self.teamID)
                             execute_query_and_commit(query, data)
+                            return True
 
 
 
@@ -282,6 +296,7 @@ class Team(App):
                     else:
                         f.write("---->Block 10\n")
                         f.write("FAILED, team does not exist in the database\n")
+                        return False
                 else:
                     f.write("---->Block 11\n")
                     f.write("FAILED, username does not exist in the database")
@@ -293,19 +308,31 @@ class Team(App):
                 # write here to an open text file
                 return False
 
-    def createProject(self, newProjectName, priority):
+    def createProject(self, newProjectName, priority) -> bool:
+        query = "SELECT EXISTS(SELECT * FROM project WHERE projectName = %s)"
+        data = (newProjectName,)
+        projectExists = fetch_query(query, data)[0][0]
+        if projectExists:
+            print("Project name already exists. Please choose another name.")
+            return False
+        try:
+            priority = int(priority)
+        except ValueError:
+            print("Priority must be an integer.")
+            return False
         query = "INSERT INTO project (projectName, priority, teamID) VALUES (%s, %s, %s)"
         data = (newProjectName, priority, self.teamID)
         execute_query_and_commit(query, data)
+        return True
 
-    def listProjects(self):
+    def listProjects(self) -> list:
         # List all projects associated with the team
         query = "SELECT projectName, priority FROM project WHERE teamID = %s"
         data = (self.teamID,)
         projects = fetch_query(query, data)
         return projects
 
-    def deleteProject(self, project_name):
+    def deleteProject(self, project_name) -> bool:
         projectID = get_projectID(project_name)
         if projectID:
             query = "DELETE FROM project WHERE projectID = %s"
@@ -315,13 +342,30 @@ class Team(App):
         else:
             return False
 
-    def selectProject(self, project_name):
+    def selectProject(self, project_name) -> bool:
         projectID = get_projectID(project_name)
         if projectID:
             self.projectFocus = Project(projectID)
             return True
         else:
             return False
+    
+    def listTeammates(self):
+        # List all teammates associated with the team
+        # Get the userID from the userteam
+        query = "SELECT userID FROM userteam WHERE teamID = %s"
+        data = (self.teamID,)  # Convert list to tuple for IN clause
+        result = fetch_query(query, data)
+        userIDs = [user[0] for user in result]
+
+        # Get the username from the user
+        placeholders = ', '.join(['%s'] * len(userIDs))
+        query = "SELECT username FROM user WHERE userID IN (%s)" % placeholders
+        data = userIDs  # Convert list to tuple for IN clause
+        result = fetch_query(query, data)
+        usernames = [user[0] for user in result]
+
+        return usernames
 
 
 class Project(App):
@@ -360,9 +404,15 @@ class Project(App):
 
     def createTask(self, title):
         # Create a new task associated with the project in the database.
+        query = "SELECT EXISTS(SELECT * FROM task WHERE taskName = %s AND projectID = %s)"
+        data = (title, self.projectID)
+        taskExists = fetch_query(query, data)[0][0]
+        if taskExists:
+            return False
         query = "INSERT INTO task (projectID, taskName, completed) VALUES (%s, %s, 0)"
         data = (self.projectID, title)
         execute_query_and_commit(query, data)
+        return True
 
     def listTasks(self):
         # List all the tasks associated with the project.
@@ -415,18 +465,20 @@ class Task:
             return False
 
     # Assign a member to the task in the database
-    def assignMember(self, taskName, username):
+    def assignMember(self, taskName, username) -> bool:
         taskID = get_taskID(taskName, self.projectID)
-        query = "SELECT userID FROM user WHERE username = %s"
-        data = (username,)
-        userID = fetch_query(query, data)
-        if taskID is not None:
-            query = "UPDATE task SET userID = %s WHERE taskID = %s"
-            data = (userID, taskID)
-            execute_query_and_commit(query, data)
-            return True
-        else:
+        userID = get_userID(username)
+        if userID is None:
+            print("User not found.")
             return False
+        if taskID is None:
+            print("Task not found.")
+            return False
+        print(userID, taskID)
+        query = "UPDATE task SET userID = %s WHERE taskID = %s"
+        data = (userID, taskID)
+        execute_query_and_commit(query, data)
+        return True
 
 
 def get_input(prompt: str):
@@ -445,10 +497,15 @@ def list_users():
 
 def get_project_team_teammates(project: Project):
     # show all users that share the team containing the task's projectID
-    query = "SELECT username FROM user WHERE userID IN (SELECT userID FROM userteam WHERE teamID IN (SELECT teamID FROM project WHERE projectID = %s))"
+    
+    # Get the teamID from the project
+    query = "SELECT teamID FROM project WHERE projectID = %s"
     data = (project.projectID,)
-    users = fetch_query(query, data)
-    return users
+    teamID = fetch_query(query, data)[0][0]
+
+    team = Team(teamID)
+
+    return team.listTeammates()
 
 
 def main():
@@ -493,6 +550,7 @@ def main():
             userInput = get_input(
                 """To create a Team type 'create'
                 To list your teams type 'list'
+                To list members of a team type 'members'
                 To delete a team type 'delete'
                 To select a team  type 'select'
                 To add a member to a team type 'assign'
@@ -500,8 +558,11 @@ def main():
 
             if userInput == 'create':
                 teamName = get_input("Enter a team name: ")
-                app.current_user.createTeam(teamName)
-                print("Team created.")
+                result = app.current_user.createTeam(teamName)
+                if result:
+                    print("Team created.")
+                else:
+                    print("Team name already exists. Please choose another name.")
 
             elif userInput == 'list':
                 result = app.current_user.listTeams()
@@ -531,6 +592,21 @@ def main():
                     print("Team deleted.")
                 else:
                     print("Team not found.")
+            
+            elif userInput == 'members':
+                team_name = get_input("Enter the team name:")
+                teamID = get_teamID(team_name)
+                if teamID is None:
+                    print("Team not found.")
+                else:
+                    team = Team(teamID)
+                    result = team.listTeammates()
+                    if result:
+                        print(f"Listing all members of {team_name}:")
+                        for teammate in result:
+                            print(teammate)
+                    else:
+                        print(f"There are no teammates associated with {team_name}.")
 
             elif userInput == 'assign':
 
@@ -538,16 +614,17 @@ def main():
                 with open('WBTeamOutput.txt', 'w') as f:
                     f.write("---->Block 1\n")
                     team_name = get_input("Enter the team name you wish to add members to:")
-                    is_successful = app.current_user.selectTeam(team_name)
+                    teamID = get_teamID(team_name)
 
                     # Check if selecting the team is successful
-                    if is_successful and app.current_user.teamFocus:
+                    if teamID is not None:
                         f.write("---->Block 3\n")
-                        currentTeam = app.current_user.teamFocus
-                        username = get_input("Enter type in the username you wish to add to this team:")
-                        currentTeam.assignToTeam(username)
+                        team = Team(teamID)
+                        username = get_input("Enter the username you wish to add to this team:")
+                        result = team.assignToTeam(username)
 
-                        print(f"{username} assigned to {team_name}.\n")
+                        if result:
+                            print(f"{username} assigned to {team_name}.\n")
                     else:
                         f.write("---->Block 13\n")
                         print("Select a valid team\n")
@@ -574,7 +651,9 @@ def main():
             if userInput == 'create':
                 project_name = get_input("Enter a project name: ")
                 project_priority = get_input("Enter a project priority: ")
-                project = teamFocus.createProject(project_name, project_priority)
+                result = teamFocus.createProject(project_name, project_priority)
+                if result:
+                    print("Project created.")
 
             elif userInput == 'list':
 
@@ -601,7 +680,11 @@ def main():
                 # Get input
                 project_name = get_input("Enter the project you wish to delete")
 
-                teamFocus.deleteProject(project_name)
+                result = teamFocus.deleteProject(project_name)
+                if result:
+                    print("Project deleted.")
+                else:
+                    print("Project not found.")
 
             elif userInput == 'back':
                 onProjectPage = False
@@ -627,8 +710,11 @@ def main():
 
             if userInput == 'create':
                 task_name = get_input("Enter a task name: ")
-                projectFocus.createTask(task_name)
-                print("Task created.")
+                result = projectFocus.createTask(task_name)
+                if result:
+                    print("Task created.")
+                else:
+                    print("Task name already exists. Please choose another name.")
 
             elif userInput == 'list':
                 projectFocus.listTasks()
@@ -644,11 +730,13 @@ def main():
             elif userInput == 'assign':
                 task_name = get_input("Enter the task name you wish to select:")
                 print("Listing your teammates:")
-                for username in get_project_team_teammates(projectFocus):
+                teammates = get_project_team_teammates(projectFocus)
+                for username in teammates:
                     print(username)
                 username = get_input("Enter the username of the teammate you wish to assign the task to:")
-                projectFocus.task.assignMember(task_name, username)
-                print(f"{username} assigned to {task_name}.")
+                result = projectFocus.task.assignMember(task_name, username)
+                if result:
+                    print(f"{username} assigned to {task_name}.")
 
 
             elif userInput == 'completion':
