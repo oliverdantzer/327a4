@@ -387,20 +387,25 @@ class Project(App):
     def trackProgressProject(self):
         # Calculate the progress of the project by summing completed tasks.
         with open(path + 'WBProjectOutput.txt', 'a') as f:
-            query = "SELECT completed FROM task WHERE projectID = %s"  # Statement 1
+            query = "SELECT taskID FROM task WHERE projectID = %s AND completed = 1"  # Statement 1
             f.write("Statement 1\n")
             data = (self.projectID,)  # Statement 2
             f.write("Statement 2\n")
-            tasks_completion = fetch_query(query, data)  # Statement 3
+            tasks_completed = fetch_query(query, data)  # Statement 3
             f.write("Statement 3\n")
-            if tasks_completion:  # Statement 4
-                completed_sum = sum(completed for completed in tasks_completion)  # Statement 5
-                f.write("Statement 4\n")
-                num_tasks = len(tasks_completion)  # Statement 6
-                f.write("Statement 5\n")
-                return completed_sum / num_tasks  # Return the completion ratio.
-            else:  # Statement 1
-                f.write("Statement 6\n")  # Statement 1
+            query = "SELECT taskID FROM task WHERE projectID = %s"  # Statement 4
+            f.write("Statement 4\n")
+            data = (self.projectID,)  # Statement 5
+            f.write("Statement 5\n")
+            tasks_total = fetch_query(query, data)  # Statement 6
+            f.write("Statement 6\n")
+            if tasks_total:  # Statement 7
+                f.write("Statement 7\n")
+                ratio = len(tasks_completed) / len(tasks_total)  # Statement 8
+                f.write("Statement 8\n")
+                return ratio # Return the completion ratio.
+            else:  # Statement 9
+                f.write("Statement 9\n")
                 return 0.0  # If there are no tasks, return 0.0.
 
     def createTask(self, title):
