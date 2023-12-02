@@ -394,7 +394,7 @@ class Project(App):
             tasks_completion = fetch_query(query, data)  # Statement 3
             f.write("Statement 3\n")
             if tasks_completion:  # Statement 4
-                completed_sum = sum(completed == 1 for completed in tasks_completion)  # Statement 5
+                completed_sum = sum(completed for completed in tasks_completion)  # Statement 5
                 f.write("Statement 4\n")
                 num_tasks = len(tasks_completion)  # Statement 6
                 f.write("Statement 5\n")
