@@ -255,7 +255,7 @@ class Team(App):
     def assignToTeam(self, username):
 
         #WHITE BOX TESTING
-        with open('WBTeamOutput.txt', 'a') as f:
+        with open(path + 'WBTeamOutput.txt', 'a') as f:
             f.write("---->Block 4\n")
 
             # Assign a user (member) to the team
@@ -386,7 +386,7 @@ class Project(App):
 
     def trackProgressProject(self):
         # Calculate the progress of the project by summing completed tasks.
-        with open('WBProjectOutput.txt', 'a') as f:
+        with open(path + 'WBProjectOutput.txt', 'a') as f:
             query = "SELECT taskID FROM task WHERE projectID = %s AND completed = 1"  # Statement 1
             f.write("Statement 1\n")
             data = (self.projectID,)  # Statement 2
@@ -617,9 +617,11 @@ def main():
             elif userInput == 'assign':
 
                 # WHITE BOX TESTING
+                # Create empty file if it doesn't exist, then close it
                 if not os.path.exists('WBTeamOutput.txt'):
-                    open('WBTeamOutput.txt', 'w').close()
-                with open('WBTeamOutput.txt', 'a') as f:
+                    open(path + 'WBTeamOutput.txt', 'w').close()
+                # Add test in append mode
+                with open(path + 'WBTeamOutput.txt', 'a') as f:
                     f.write(f"\n\nassignToTeam 'white box block coverage test' {datetime.now()}:\n")
                     f.write("---->Block 1\n")
                     team_name = get_input("Enter the team name you wish to add members to:")
@@ -755,9 +757,11 @@ def main():
             elif userInput == 'completion':
                 # get the completion percentage of the project
                 # WHITE BOX TESTING
+                # Create empty file if it doesn't exist, then close it
                 if not os.path.exists('WBProjectOutput.txt'):
-                    open('WBProjectOutput.txt', 'w').close()
-                with open('WBProjectOutput.txt', 'a') as f:
+                    open(path + 'WBProjectOutput.txt', 'w').close()
+                # Add test in append mode
+                with open(path + 'WBProjectOutput.txt', 'a') as f:
                     f.write(f"\n\ntrackProgressProject 'white box statement coverage test' {datetime.now()}:\n")
                     f.flush() # flush the buffer to ensure the file is written to before the test is run
                     completion = projectFocus.trackProgressProject()
