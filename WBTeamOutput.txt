@@ -28,3 +28,11 @@ Check, Username has been found within the database
 ---->Block 7
 Check, Team has been found within the database
 ---->Block 9
+---->Block 4
+---->Block 5
+Check, Username is alphanumeric
+---->Block 6
+Check, Username has been found within the database
+---->Block 7
+Check, Team has been found within the database
+---->Block 9

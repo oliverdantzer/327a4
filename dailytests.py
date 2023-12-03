@@ -3,6 +3,7 @@
 import A6 as application
 import unittest
 from datetime import datetime
+import os
 
 test_instance = application.App()
 test_user_instance = None
@@ -557,7 +558,7 @@ class Tests(unittest.TestCase):
 if __name__ == '__main__':
 
     # Using a context manager to ensure the file is properly closed
-    with open("daily_test_results.txt", "a") as f:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "daily_test_results.txt"), "a") as f:
         f.write(f"\n\n\n**************************************************************\n")
         f.write(f"Daily testing performance on {datetime.now()}:\n")
         f.write(f"**************************************************************\n\n")

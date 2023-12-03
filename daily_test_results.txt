@@ -345,3 +345,58 @@ AssertionError: False is not true
 Ran 19 tests in 0.213s
 
 FAILED (failures=3)
+
+
+
+**************************************************************
+Daily testing performance on 2023-12-02 21:35:35.209368:
+**************************************************************
+
+test_AssignToTeam (__main__.Tests.test_AssignToTeam) ... ok
+test_Login (__main__.Tests.test_Login) ... ok
+test_MarkedAsComplete (__main__.Tests.test_MarkedAsComplete) ... ok
+test_ProgressTrack (__main__.Tests.test_ProgressTrack) ... ok
+test_ProjectCreation (__main__.Tests.test_ProjectCreation) ... ok
+test_Register (__main__.Tests.test_Register) ... FAIL
+test_SetPriority (__main__.Tests.test_SetPriority) ... FAIL
+test_TeamCreation (__main__.Tests.test_TeamCreation) ... ok
+test_assignToTask (__main__.Tests.test_assignToTask) ... FAIL
+test_createTask (__main__.Tests.test_createTask) ... ok
+test_deleteProject (__main__.Tests.test_deleteProject) ... ok
+test_deleteTask (__main__.Tests.test_deleteTask) ... ok
+test_deleteTeam (__main__.Tests.test_deleteTeam) ... ok
+test_listProjects (__main__.Tests.test_listProjects) ... ok
+test_listTasks (__main__.Tests.test_listTasks) ... ok
+test_listTeams (__main__.Tests.test_listTeams) ... ok
+test_selectProject (__main__.Tests.test_selectProject) ... ok
+test_selectTask (__main__.Tests.test_selectTask) ... ok
+test_selectTeam (__main__.Tests.test_selectTeam) ... ok
+
+======================================================================
+FAIL: test_Register (__main__.Tests.test_Register)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 29, in test_Register
+    self.assertTrue(result)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_SetPriority (__main__.Tests.test_SetPriority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 395, in test_SetPriority
+    self.assertEqual(result, 1)
+AssertionError: None != 1
+
+======================================================================
+FAIL: test_assignToTask (__main__.Tests.test_assignToTask)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 466, in test_assignToTask
+    self.assertTrue(result)
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.146s
+
+FAILED (failures=3)
