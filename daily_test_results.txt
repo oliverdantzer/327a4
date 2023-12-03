@@ -1,0 +1,347 @@
+
+
+
+**************************************************************
+Daily testing performance on 2023-12-02 17:30:01.814746:
+**************************************************************
+
+test_AssignToTeam (__main__.Tests.test_AssignToTeam) ... ERROR
+test_Login (__main__.Tests.test_Login) ... FAIL
+test_MarkedAsComplete (__main__.Tests.test_MarkedAsComplete) ... ERROR
+test_ProgressTrack (__main__.Tests.test_ProgressTrack) ... ERROR
+test_ProjectCreation (__main__.Tests.test_ProjectCreation) ... ERROR
+test_Register (__main__.Tests.test_Register) ... ok
+test_SetPriority (__main__.Tests.test_SetPriority) ... ERROR
+test_TeamCreation (__main__.Tests.test_TeamCreation) ... ERROR
+test_assignToTask (__main__.Tests.test_assignToTask) ... ERROR
+test_createTask (__main__.Tests.test_createTask) ... ERROR
+test_deleteProject (__main__.Tests.test_deleteProject) ... ok
+test_deleteTask (__main__.Tests.test_deleteTask) ... ok
+test_deleteTeam (__main__.Tests.test_deleteTeam) ... ok
+test_listProjects (__main__.Tests.test_listProjects) ... ERROR
+test_listTasks (__main__.Tests.test_listTasks) ... ERROR
+test_listTeams (__main__.Tests.test_listTeams) ... ERROR
+test_selectProject (__main__.Tests.test_selectProject) ... ERROR
+test_selectTask (__main__.Tests.test_selectTask) ... ERROR
+test_selectTeam (__main__.Tests.test_selectTeam) ... ERROR
+
+======================================================================
+ERROR: test_AssignToTeam (__main__.Tests.test_AssignToTeam)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 408, in test_AssignToTeam
+    test_user_instance.createTeam(demo_team)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'createTeam'
+
+======================================================================
+ERROR: test_MarkedAsComplete (__main__.Tests.test_MarkedAsComplete)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 296, in test_MarkedAsComplete
+    test_user_instance.createTeam(demo_team)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'createTeam'
+
+======================================================================
+ERROR: test_ProgressTrack (__main__.Tests.test_ProgressTrack)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 333, in test_ProgressTrack
+    test_user_instance.createTeam(demo_team)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'createTeam'
+
+======================================================================
+ERROR: test_ProjectCreation (__main__.Tests.test_ProjectCreation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 113, in test_ProjectCreation
+    test_user_instance.createTeam(demo_team)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'createTeam'
+
+======================================================================
+ERROR: test_SetPriority (__main__.Tests.test_SetPriority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 374, in test_SetPriority
+    test_user_instance.createTeam(demo_team)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'createTeam'
+
+======================================================================
+ERROR: test_TeamCreation (__main__.Tests.test_TeamCreation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 56, in test_TeamCreation
+    test_user_instance.createTeam(demo_team)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'createTeam'
+
+======================================================================
+ERROR: test_assignToTask (__main__.Tests.test_assignToTask)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 428, in test_assignToTask
+    test_user_instance.createTeam(demo_team)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'createTeam'
+
+======================================================================
+ERROR: test_createTask (__main__.Tests.test_createTask)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 185, in test_createTask
+    test_user_instance.createTeam(demo_team)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'createTeam'
+
+======================================================================
+ERROR: test_listProjects (__main__.Tests.test_listProjects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 140, in test_listProjects
+    team_created = test_user_instance.selectTeam(demo_team)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'selectTeam'
+
+======================================================================
+ERROR: test_listTasks (__main__.Tests.test_listTasks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 223, in test_listTasks
+    test_user_instance.createTeam(demo_team)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'createTeam'
+
+======================================================================
+ERROR: test_listTeams (__main__.Tests.test_listTeams)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 75, in test_listTeams
+    test_user_instance.createTeam(demo_second_team)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'createTeam'
+
+======================================================================
+ERROR: test_selectProject (__main__.Tests.test_selectProject)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 168, in test_selectProject
+    result = team_focus.selectProject("MyProject")
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'selectProject'
+
+======================================================================
+ERROR: test_selectTask (__main__.Tests.test_selectTask)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 262, in test_selectTask
+    test_user_instance.createTeam(demo_team)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'createTeam'
+
+======================================================================
+ERROR: test_selectTeam (__main__.Tests.test_selectTeam)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 96, in test_selectTeam
+    result = test_user_instance.selectTeam("MyTeam")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'selectTeam'
+
+======================================================================
+FAIL: test_Login (__main__.Tests.test_Login)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 44, in test_Login
+    self.assertIsNotNone(test_user_instance)
+AssertionError: unexpectedly None
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.096s
+
+FAILED (failures=1, errors=14)
+
+
+
+**************************************************************
+Daily testing performance on 2023-12-02 17:45:10.978625:
+**************************************************************
+
+test_AssignToTeam (__main__.Tests.test_AssignToTeam) ... ERROR
+test_Login (__main__.Tests.test_Login) ... ok
+test_MarkedAsComplete (__main__.Tests.test_MarkedAsComplete) ... ok
+test_ProgressTrack (__main__.Tests.test_ProgressTrack) ... ok
+test_ProjectCreation (__main__.Tests.test_ProjectCreation) ... ok
+test_Register (__main__.Tests.test_Register) ... FAIL
+test_SetPriority (__main__.Tests.test_SetPriority) ... FAIL
+test_TeamCreation (__main__.Tests.test_TeamCreation) ... ok
+test_assignToTask (__main__.Tests.test_assignToTask) ... FAIL
+test_createTask (__main__.Tests.test_createTask) ... ok
+test_deleteProject (__main__.Tests.test_deleteProject) ... ok
+test_deleteTask (__main__.Tests.test_deleteTask) ... ok
+test_deleteTeam (__main__.Tests.test_deleteTeam) ... ok
+test_listProjects (__main__.Tests.test_listProjects) ... ok
+test_listTasks (__main__.Tests.test_listTasks) ... ok
+test_listTeams (__main__.Tests.test_listTeams) ... ok
+test_selectProject (__main__.Tests.test_selectProject) ... ok
+test_selectTask (__main__.Tests.test_selectTask) ... ok
+test_selectTeam (__main__.Tests.test_selectTeam) ... ok
+
+======================================================================
+ERROR: test_AssignToTeam (__main__.Tests.test_AssignToTeam)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 408, in test_AssignToTeam
+    test_user_instance.createTeam(demo_team)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'createTeam'
+
+======================================================================
+FAIL: test_Register (__main__.Tests.test_Register)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 28, in test_Register
+    self.assertTrue(result)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_SetPriority (__main__.Tests.test_SetPriority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 394, in test_SetPriority
+    self.assertEqual(result, 1)
+AssertionError: None != 1
+
+======================================================================
+FAIL: test_assignToTask (__main__.Tests.test_assignToTask)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 457, in test_assignToTask
+    self.assertTrue(result)
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.180s
+
+FAILED (failures=3, errors=1)
+
+
+
+**************************************************************
+Daily testing performance on 2023-12-02 17:47:49.101721:
+**************************************************************
+
+test_AssignToTeam (__main__.Tests.test_AssignToTeam) ... FAIL
+test_Login (__main__.Tests.test_Login) ... ok
+test_MarkedAsComplete (__main__.Tests.test_MarkedAsComplete) ... ok
+test_ProgressTrack (__main__.Tests.test_ProgressTrack) ... ok
+test_ProjectCreation (__main__.Tests.test_ProjectCreation) ... ok
+test_Register (__main__.Tests.test_Register) ... FAIL
+test_SetPriority (__main__.Tests.test_SetPriority) ... FAIL
+test_TeamCreation (__main__.Tests.test_TeamCreation) ... ok
+test_assignToTask (__main__.Tests.test_assignToTask) ... FAIL
+test_createTask (__main__.Tests.test_createTask) ... ok
+test_deleteProject (__main__.Tests.test_deleteProject) ... ok
+test_deleteTask (__main__.Tests.test_deleteTask) ... ok
+test_deleteTeam (__main__.Tests.test_deleteTeam) ... ok
+test_listProjects (__main__.Tests.test_listProjects) ... ok
+test_listTasks (__main__.Tests.test_listTasks) ... ok
+test_listTeams (__main__.Tests.test_listTeams) ... ok
+test_selectProject (__main__.Tests.test_selectProject) ... ok
+test_selectTask (__main__.Tests.test_selectTask) ... ok
+test_selectTeam (__main__.Tests.test_selectTeam) ... ok
+
+======================================================================
+FAIL: test_AssignToTeam (__main__.Tests.test_AssignToTeam)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 418, in test_AssignToTeam
+    self.assertTrue(result)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_Register (__main__.Tests.test_Register)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 28, in test_Register
+    self.assertTrue(result)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_SetPriority (__main__.Tests.test_SetPriority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 394, in test_SetPriority
+    self.assertEqual(result, 1)
+AssertionError: None != 1
+
+======================================================================
+FAIL: test_assignToTask (__main__.Tests.test_assignToTask)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 457, in test_assignToTask
+    self.assertTrue(result)
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.222s
+
+FAILED (failures=4)
+
+
+
+**************************************************************
+Daily testing performance on 2023-12-02 17:58:05.212471:
+**************************************************************
+
+test_AssignToTeam (__main__.Tests.test_AssignToTeam) ... ok
+test_Login (__main__.Tests.test_Login) ... ok
+test_MarkedAsComplete (__main__.Tests.test_MarkedAsComplete) ... ok
+test_ProgressTrack (__main__.Tests.test_ProgressTrack) ... ok
+test_ProjectCreation (__main__.Tests.test_ProjectCreation) ... ok
+test_Register (__main__.Tests.test_Register) ... FAIL
+test_SetPriority (__main__.Tests.test_SetPriority) ... FAIL
+test_TeamCreation (__main__.Tests.test_TeamCreation) ... ok
+test_assignToTask (__main__.Tests.test_assignToTask) ... FAIL
+test_createTask (__main__.Tests.test_createTask) ... ok
+test_deleteProject (__main__.Tests.test_deleteProject) ... ok
+test_deleteTask (__main__.Tests.test_deleteTask) ... ok
+test_deleteTeam (__main__.Tests.test_deleteTeam) ... ok
+test_listProjects (__main__.Tests.test_listProjects) ... ok
+test_listTasks (__main__.Tests.test_listTasks) ... ok
+test_listTeams (__main__.Tests.test_listTeams) ... ok
+test_selectProject (__main__.Tests.test_selectProject) ... ok
+test_selectTask (__main__.Tests.test_selectTask) ... ok
+test_selectTeam (__main__.Tests.test_selectTeam) ... ok
+
+======================================================================
+FAIL: test_Register (__main__.Tests.test_Register)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 28, in test_Register
+    self.assertTrue(result)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_SetPriority (__main__.Tests.test_SetPriority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 394, in test_SetPriority
+    self.assertEqual(result, 1)
+AssertionError: None != 1
+
+======================================================================
+FAIL: test_assignToTask (__main__.Tests.test_assignToTask)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "c:\Users\callm\OneDrive\Documents\GitHub\327a4\dailytests.py", line 465, in test_assignToTask
+    self.assertTrue(result)
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.213s
+
+FAILED (failures=3)

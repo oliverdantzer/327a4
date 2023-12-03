@@ -396,7 +396,7 @@ class Tests(unittest.TestCase):
     # Tests if member assignment to team works
     def test_AssignToTeam(self):
         # Team name to be inserted
-        demoUsername = "MyUserName"
+        demoUsername = "MyDailyUserName"
         demoPassword = "12345678"
         demo_team = "MyTeam"
 
@@ -412,9 +412,17 @@ class Tests(unittest.TestCase):
         self.assertIsNotNone(test_instance)
         self.assertIsNotNone(test_user_instance)
         self.assertIsNotNone(team_focus)
-        
+
+        # Create user to be assigned
+        demoAssignUsername = "AssigneeUserName"
+        demoAssignPassword = "12345678"
+        test_instance.register(demoAssignUsername, demoAssignPassword)
+        demoAssignUserID = application.get_userID(demoAssignUsername)
+        query = "DELETE FROM userteam WHERE userID = %s"
+        data = (demoAssignUserID,)
+        application.execute_query_and_commit(query, data)
         # Assign to team
-        result = team_focus.assignToTeam(demoUsername)
+        result = team_focus.assignToTeam(demoAssignUsername)
         self.assertTrue(result)
 
     # Tests if user task assignment works
@@ -549,7 +557,7 @@ class Tests(unittest.TestCase):
 if __name__ == '__main__':
 
     # Using a context manager to ensure the file is properly closed
-    with open(application.path + "daily_test_results.txt", "a") as f:
+    with open("daily_test_results.txt", "a") as f:
         f.write(f"\n\n\n**************************************************************\n")
         f.write(f"Daily testing performance on {datetime.now()}:\n")
         f.write(f"**************************************************************\n\n")

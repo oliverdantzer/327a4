@@ -9,8 +9,9 @@ cursor = None
 # These could change based on what your database and password for it are 
 dbPassword = "1234"                                # INPUT YOUR DATABASE PASSWORD HERE
 database = "mydatabase"                                 # INPUT YOUR DATABASE NAME HERE
-path = "/Users/georgesalib/Downloads/327a4-main/A6/"    # INPUT YOUR FULL PROJECT DIRECTORY
 #*************************************************************************************************
+
+path = os.path.dirname(os.path.abspath(__file__))
 
 # Connect to MySQL
 mydb = mysql.connector.connect(
@@ -255,7 +256,7 @@ class Team(App):
     def assignToTeam(self, username):
 
         #WHITE BOX TESTING
-        with open(path + 'WBTeamOutput.txt', 'a') as f:
+        with open(os.path.join(path, 'WBTeamOutput.txt'), 'a') as f:
             f.write("---->Block 4\n")
 
             # Assign a user (member) to the team
@@ -386,7 +387,7 @@ class Project(App):
 
     def trackProgressProject(self):
         # Calculate the progress of the project by summing completed tasks.
-        with open(path + 'WBProjectOutput.txt', 'a') as f:
+        with open(os.path.join(path, 'WBProjectOutput.txt'), 'a') as f:
             query = "SELECT taskID FROM task WHERE projectID = %s AND completed = 1"  # Statement 1
             f.write("Statement 1\n")
             data = (self.projectID,)  # Statement 2
@@ -618,10 +619,10 @@ def main():
 
                 # WHITE BOX TESTING
                 # Create empty file if it doesn't exist, then close it
-                if not os.path.exists('WBTeamOutput.txt'):
-                    open(path + 'WBTeamOutput.txt', 'w').close()
+                if not os.path.exists(os.path.join(path, 'WBTeamOutput.txt')):
+                    open(os.path.join(path, 'WBTeamOutput.txt'), 'w').close()
                 # Add test in append mode
-                with open(path + 'WBTeamOutput.txt', 'a') as f:
+                with open(os.path.join(path, 'WBTeamOutput.txt'), 'a') as f:
                     f.write(f"\n\nassignToTeam 'white box block coverage test' {datetime.now()}:\n")
                     f.write("---->Block 1\n")
                     team_name = get_input("Enter the team name you wish to add members to:")
@@ -758,10 +759,10 @@ def main():
                 # get the completion percentage of the project
                 # WHITE BOX TESTING
                 # Create empty file if it doesn't exist, then close it
-                if not os.path.exists('WBProjectOutput.txt'):
-                    open(path + 'WBProjectOutput.txt', 'w').close()
+                if not os.path.exists(os.path.join(path, 'WBProjectOutput.txt')):
+                    open(os.path.join(path, 'WBProjectOutput.txt'), 'w').close()
                 # Add test in append mode
-                with open(path + 'WBProjectOutput.txt', 'a') as f:
+                with open(os.path.join(path, 'WBProjectOutput.txt'), 'a') as f:
                     f.write(f"\n\ntrackProgressProject 'white box statement coverage test' {datetime.now()}:\n")
                     f.flush() # flush the buffer to ensure the file is written to before the test is run
                     completion = projectFocus.trackProgressProject()
