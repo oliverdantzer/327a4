@@ -21,7 +21,7 @@ mydb = mysql.connector.connect(
 )
 cursor = mydb.cursor()
 
-# Set up a database, delete the old one (testing)
+# Set up a database,if it doesn't exist
 cursor.execute("CREATE DATABASE IF NOT EXISTS " + database)
 cursor.execute("USE " + database)
 # create Users and Teams table
